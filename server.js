@@ -31,25 +31,23 @@ app.use("/uploads", express.static("uploads"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
 
-mongoose
-  .connect("mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/?appName=User")
-  .then(async () => {
-    console.log("MongoDB Connected");
-    await seedRoles();
-  })
-  .catch(err => console.log(err));
+mongoose.connect(
+  "mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/task_manager?retryWrites=true&w=majority"
+)
+.then(() => console.log("MongoDB Connected"))
+.catch(err => console.log("MongoDB connection error:", err));
 
 const admin = {
   id: 1,
   email: "manali@gmail.com",
   password: "2406",
-  role : "admin"
+  role: "admin"
 };
 
 app.post("/api/login", async (req, res) => {
   const { email, password, role } = req.body;
 
- 
+
 
   if (!email || !password) {
     return res.status(400).json({ message: "Email and password required" });
@@ -78,7 +76,7 @@ app.post("/api/login", async (req, res) => {
       {
         id: user._id,
         email: user.email,
-        role: role
+        role: user.role_id ? user.role_id.name : "Employee"
       },
       SECRET_KEY,
       { expiresIn: "1h" }
