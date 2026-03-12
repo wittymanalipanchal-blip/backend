@@ -1,0 +1,247 @@
+
+TABLES 
+
+UserManagement
+
+user_id (PK)
+full_name
+email (UNIQUE)
+password_hash
+role_id (FK → RoleManagement.role_id)
+status (Active / Inactive)
+created_at
+updated_at
+last_login
+
+RoleManagement
+
+role_id (PK)
+role_name
+description
+created_at
+
+UserPermission
+
+permission_id PK
+role_id FK
+permission_name
+created_at
+
+RolePermission
+id
+role_id
+permission_id
+
+
+EmployeeDetails
+
+emp_id
+user_id
+designation
+department
+joining_date 
+
+
+ProjectManagement
+
+project_id PK
+project_name
+description
+created_by FK
+project_manager_id FK
+start_date
+end_date
+status (Planned / Active / Completed)
+created_at
+updated_at
+
+
+TaskManagement
+
+task_id PK
+project_id FK
+task_title
+task_description
+assigned_to FK
+assigned_by FK
+priority (Low / Medium / High)
+status (Pending / In Progress / Completed)
+start_date
+due_date
+submission_file
+created_at
+updated_at
+
+
+TaskProgress
+
+progress_id
+task_id
+updated_by
+progress_note
+pro_date
+
+Performance
+
+performance_id
+emp_id
+task_id
+score
+remarks
+evulated_by
+evaluation_date
+
+Announcment
+
+announcement_id
+title
+message
+created_at
+updated_at
+
+dashboardView
+
+TotalProject
+TotalTask
+PendingTask
+CompletedTask
+PerformanceAvg
+
+Users 
+
+| No | Field Name | Constraints                            | Field Type      | Field Size    | Description                                               |
+| -- | ---------- | -------------------------------------- | --------------- | ------------- | --------------------------------------------------------- |
+| 1  | _id        | Primary Key (Auto Generated), NOT NULL | ObjectId        | 24 characters | Unique identifier for the user (MongoDB ObjectId)         |
+| 2  | full_name  | NOT NULL                               | String          | 100           | Stores the full name of the user                          |
+| 3  | email      | UNIQUE, NOT NULL                       | String          | 150           | Stores the user's email address                           |
+| 4  | password   | NOT NULL                               | String (Hashed) | 255           | Stores the encrypted (hashed) password                    |
+| 5  | role_id    | Foreign Key (Reference to Roles Table) | ObjectId        | 24 characters | Stores reference ID of the user role                      |
+| 6  | status     | NOT NULL, Default: "ACTIVE"            | String          | 20            | Stores the current status of the user (ACTIVE / INACTIVE) |
+| 7  | createdAt  | Auto Generated                         | Date            | —             | Stores record creation date and time                      |
+| 8  | updatedAt  | Auto Updated                           | Date            | —             | Stores last updated date and time                         |
+| 9  | __v        | Default: 0                             | Number          | —             | Version key used internally by MongoDB                    |
+
+
+Tasks 
+
+| No | Field Name  | Constraints                                                | Field Type | Field Size    | Description                                                       |
+| -- | ----------- | ---------------------------------------------------------- | ---------- | ------------- | ----------------------------------------------------------------- |
+| 1  | _id         | Primary Key (Auto Generated), NOT NULL                     | ObjectId   | 24 characters | Unique identifier for the assignment record                       |
+| 2  | project_id  | Foreign Key (Reference to Projects Table), NOT NULL        | ObjectId   | 24 characters | Stores reference ID of the assigned project                       |
+| 3  | employee_id | Foreign Key (Reference to Users/Employees Table), NOT NULL | ObjectId   | 24 characters | Stores reference ID of the assigned employee                      |
+| 4  | assigned_by | Foreign Key (Reference to Users/Admin Table), NOT NULL     | ObjectId   | 24 characters | Stores reference ID of the user/admin who assigned the project    |
+| 5  | work_type   | NOT NULL                                                   | String     | 100           | Type of work assigned (e.g., Project Assignment)                  |
+| 6  | description | —                                                          | String     | 255           | Stores additional details about the assignment                    |
+| 7  | status      | NOT NULL, Default: "Assigned"                              | String     | 20            | Current status of assignment (Assigned / In Progress / Completed) |
+| 8  | uploads     | —                                                          | Array      | —             | Stores uploaded files related to the assignment                   |
+| 9  | createdAt   | Auto Generated                                             | Date       | —             | Record creation date and time                                     |
+| 10 | updatedAt   | Auto Updated                                               | Date       | —             | Record last updated date and time                                 |
+| 11 | __v         | Default: 0                                                 | Number     | —             | Version key used internally by MongoDB                            |
+
+Roles 
+
+| No | Field Name | Constraints                            | Field Type | Field Size    | Description                                           |
+| -- | ---------- | -------------------------------------- | ---------- | ------------- | ----------------------------------------------------- |
+| 1  | _id        | Primary Key (Auto Generated), NOT NULL | ObjectId   | 24 characters | Unique identifier for the role                        |
+| 2  | name       | UNIQUE, NOT NULL                       | String     | 50            | Stores the role name (e.g., Admin, Employee, Manager) |
+| 3  | __v        | Default: 0                             | Number     | —             | Version key used internally by MongoDB                |
+
+Projects 
+
+| No | Field Name      | Constraints                                      | Field Type          | Field Size    | Description                                            |
+| -- | --------------- | ------------------------------------------------ | ------------------- | ------------- | ------------------------------------------------------ |
+| 1  | _id             | Primary Key (Auto Generated), NOT NULL           | ObjectId            | 24 characters | Unique identifier for the project                      |
+| 2  | name            | NOT NULL                                         | String              | 150           | Stores the project name                                |
+| 3  | client          | NOT NULL                                         | String              | 100           | Stores the client name for whom the project is created |
+| 4  | priority        | NOT NULL                                         | String              | 20            | Defines project priority (High / Medium / Low)         |
+| 5  | status          | NOT NULL                                         | String              | 20            | Current project status (Active / Completed / On Hold)  |
+| 6  | manager_id      | Foreign Key (Reference to Users Table), NOT NULL | ObjectId            | 24 characters | Stores reference ID of the project manager             |
+| 7  | team_manager_id | Foreign Key (Reference to Users Table)           | ObjectId            | 24 characters | Stores reference ID of the team manager                |
+| 8  | budget          | NOT NULL                                         | Number (Decimal)    | —             | Stores total allocated budget for the project          |
+| 9  | progress        | Default: 0                                       | Number (Percentage) | 0–100         | Stores project completion percentage                   |
+| 10 | startDate       | NOT NULL                                         | Date                | —             | Project start date                                     |
+| 11 | endDate         | NOT NULL                                         | Date                | —             | Project end date                                       |
+| 12 | createdAt       | Auto Generated                                   | Date                | —             | Record creation date and time                          |
+| 13 | updatedAt       | Auto Updated                                     | Date                | —             | Record last updated date and time                      |
+| 14 | __v             | Default: 0                                       | Number              | —             | Version key used internally by MongoDB                 |
+
+Project_Uplods 
+
+| No | Field Name  | Constraints                                         | Field Type | Field Size    | Description                                                |
+| -- | ----------- | --------------------------------------------------- | ---------- | ------------- | ---------------------------------------------------------- |
+| 1  | _id         | Primary Key (Auto Generated), NOT NULL              | ObjectId   | 24 characters | Unique identifier for the upload record                    |
+| 2  | project     | Foreign Key (Reference to Projects Table), NOT NULL | ObjectId   | 24 characters | Stores reference ID of the related project                 |
+| 3  | uploadedBy  | Foreign Key (Reference to Users Table), NOT NULL    | ObjectId   | 24 characters | Stores reference ID of the user who uploaded the file      |
+| 4  | assignedTo  | Foreign Key (Reference to Users Table)              | ObjectId   | 24 characters | Stores reference ID of the assigned user                   |
+| 5  | description | —                                                   | String     | 255           | Stores description or remarks about the uploaded file      |
+| 6  | type        | NOT NULL                                            | String     | 20            | Stores file type (e.g., zip, pdf, docx)                    |
+| 7  | files       | NOT NULL                                            | Array      | —             | Stores uploaded file details (file name, path, size, etc.) |
+| 8  | status      | NOT NULL                                            | String     | 20            | Current status of upload (Pending / Done / Approved)       |
+| 9  | createdAt   | Auto Generated                                      | Date       | —             | Record creation date and time                              |
+| 10 | __v         | Default: 0                                          | Number     | —             | Version key used internally by MongoDB                     |
+
+
+Project_reports
+
+| No | Field Name  | Constraints                                         | Field Type | Field Size    | Description                                                  |
+| -- | ----------- | --------------------------------------------------- | ---------- | ------------- | ------------------------------------------------------------ |
+| 1  | _id         | Primary Key (Auto Generated), NOT NULL              | ObjectId   | 24 characters | Unique identifier for the task record                        |
+| 2  | project     | Foreign Key (Reference to Projects Table), NOT NULL | ObjectId   | 24 characters | Stores reference ID of the related project                   |
+| 3  | assignedBy  | Foreign Key (Reference to Users Table), NOT NULL    | ObjectId   | 24 characters | Stores reference ID of the user who assigned the task        |
+| 4  | assignedTo  | Foreign Key (Reference to Users Table), NOT NULL    | ObjectId   | 24 characters | Stores reference ID of the user to whom the task is assigned |
+| 5  | description | NOT NULL                                            | String     | 255           | Stores task description or work details                      |
+| 6  | files       | —                                                   | Array      | —             | Stores attached files related to the task                    |
+| 7  | status      | NOT NULL, Default: "Assigned"                       | String     | 20            | Current task status (Assigned / In Progress / Completed)     |
+| 8  | createdAt   | Auto Generated                                      | Date       | —             | Record creation date and time                                |
+| 9  | updatedAt   | Auto Updated                                        | Date       | —             | Record last updated date and time                            |
+| 10 | __v         | Default: 0                                          | Number     | —             | Version key used internally by MongoDB                       |
+
+
+Clients
+
+| No | Field Name | Constraints                            | Field Type   | Field Size    | Description                                  |
+| -- | ---------- | -------------------------------------- | ------------ | ------------- | -------------------------------------------- |
+| 1  | _id        | Primary Key (Auto Generated), NOT NULL | ObjectId     | 24 characters | Unique identifier for the client             |
+| 2  | name       | NOT NULL                               | String       | 150           | Stores full name of the client               |
+| 3  | email      | UNIQUE                                 | String       | 150           | Stores client email address                  |
+| 4  | phone      | —                                      | String       | 15            | Stores client contact number                 |
+| 5  | company    | —                                      | String       | 150           | Stores company name of the client            |
+| 6  | address    | —                                      | String       | 255           | Stores client address                        |
+| 7  | website    | —                                      | String (URL) | 255           | Stores client website URL                    |
+| 8  | status     | NOT NULL                               | String       | 20            | Current status of client (Active / Inactive) |
+| 9  | notes      | —                                      | String       | 255           | Additional remarks or notes about the client |
+| 10 | createdAt  | Auto Generated                         | Date         | —             | Record creation date and time                |
+| 11 | updatedAt  | Auto Updated                           | Date         | —             | Record last updated date and time            |
+| 12 | __v        | Default: 0                             | Number       | —             | Version key used internally by MongoDB       |
+
+
+Announcements
+
+| No | Field Name | Constraints                            | Field Type | Field Size    | Description                                |
+| -- | ---------- | -------------------------------------- | ---------- | ------------- | ------------------------------------------ |
+| 1  | _id        | Primary Key (Auto Generated), NOT NULL | ObjectId   | 24 characters | Unique identifier for the announcement     |
+| 2  | title      | NOT NULL                               | String     | 150           | Stores the title of the announcement       |
+| 3  | message    | NOT NULL                               | String     | 255           | Stores the announcement message or content |
+| 4  | createdAt  | Auto Generated                         | Date       | —             | Record creation date and time              |
+| 5  | updatedAt  | Auto Updated                           | Date       | —             | Record last updated date and time          |
+| 6  | __v        | Default: 0                             | Number     | —             | Version key used internally by MongoDB     |
+
+
+timetrackings
+
+| No | Field Name   | Constraints                                              | Field Type       | Field Size    | Description                                            |
+| -- | ------------ | -------------------------------------------------------- | ---------------- | ------------- | ------------------------------------------------------ |
+| 1  | _id          | Primary Key (Auto Generated), NOT NULL                   | ObjectId         | 24 characters | Unique identifier for the time tracking record         |
+| 2  | user         | Foreign Key (Reference to Users Table), NOT NULL         | ObjectId         | 24 characters | Stores reference ID of the user who worked on the task |
+| 3  | project      | Foreign Key (Reference to Projects Table), NOT NULL      | ObjectId         | 24 characters | Stores reference ID of the related project             |
+| 4  | task         | Foreign Key (Reference to Project_Tasks Table), NOT NULL | ObjectId         | 24 characters | Stores reference ID of the related task                |
+| 5  | description  | —                                                        | String           | 255           | Stores work description or activity details            |
+| 6  | startTime    | NOT NULL                                                 | DateTime         | —             | Stores task start date and time                        |
+| 7  | endTime      | —                                                        | DateTime         | —             | Stores task end date and time                          |
+| 8  | totalSeconds | Auto Calculated                                          | Number (Integer) | —             | Stores total time spent in seconds                     |
+| 9  | status       | NOT NULL                                                 | String           | 20            | Status of work (Running / Completed)                   |
+| 10 | createdAt    | Auto Generated                                           | Date             | —             | Record creation date and time                          |
+| 11 | updatedAt    | Auto Updated                                             | Date             | —             | Record last updated date and time                      |
+| 12 | __v          | Default: 0                                               | Number           | —             | Version key used internally by MongoDB                 |
+
+

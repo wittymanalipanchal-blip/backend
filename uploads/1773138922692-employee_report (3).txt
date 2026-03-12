@@ -1,0 +1,8 @@
+Record 1
+_id : 69ae6d6cb2eb51a9cc9fd991
+employeeName : Jay
+projectName : University Management
+taskName : UI/UX
+status : Completed
+submission : Early Submission
+---------------------------

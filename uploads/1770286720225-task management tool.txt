@@ -1,0 +1,161 @@
+Project : Task Management Tool
+Work Flow: 
+
+ADMIN 
+
+login/logout
+authentication
+manage roles&permission
+add/edit/delete employee
+view employees
+view performance reports
+create/edit/delete projects
+view all task
+create announcement
+view dashboard
+
+
+PROJECT MANAGER 
+
+login/log
+view assigned projects
+create/edit/delete task
+assign task to Team Manager
+track status
+view project report
+view team performance
+view dashboard
+
+TEAM MANAGER 
+
+login/logout
+view assigned project
+view assigned task
+assign task to employee
+track task progress
+update task status
+see individual employee performance report
+view dashboard
+
+
+EMPLOYEE
+
+login/logout
+view task
+upload task 
+add/update/delete task
+view performance score 
+view announcements 
+view dashboard
+
+
+
+
+TABLES 
+
+UserManagement
+
+user_id (PK)
+full_name
+email (UNIQUE)
+password_hash
+role_id (FK → RoleManagement.role_id)
+status (Active / Inactive)
+created_at
+updated_at
+last_login
+
+RoleManagement
+
+role_id (PK)
+role_name
+description
+created_at
+
+UserPermission
+
+permission_id PK
+role_id FK
+permission_name
+created_at
+
+RolePermission
+id
+role_id
+permission_id
+
+
+EmployeeDetails
+
+emp_id
+user_id
+designation
+department
+joining_date 
+
+
+ProjectManagement
+
+project_id PK
+project_name
+description
+created_by FK
+project_manager_id FK
+start_date
+end_date
+status (Planned / Active / Completed)
+created_at
+updated_at
+
+
+TaskManagement
+
+task_id PK
+project_id FK
+task_title
+task_description
+assigned_to FK
+assigned_by FK
+priority (Low / Medium / High)
+status (Pending / In Progress / Completed)
+start_date
+due_date
+submission_file
+created_at
+updated_at
+
+
+TaskProgress
+
+progress_id
+task_id
+updated_by
+progress_note
+pro_date
+
+Performance
+
+performance_id
+emp_id
+task_id
+score
+remarks
+evulated_by
+evaluation_date
+
+Announcment
+
+announcement_id
+title
+message
+created_at
+updated_at
+
+dashboardView
+
+TotalProject
+TotalTask
+PendingTask
+CompletedTask
+PerformanceAvg
+

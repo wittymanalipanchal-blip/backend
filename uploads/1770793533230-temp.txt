@@ -1,0 +1,96 @@
+const express = require("express");
+const Project = require("../models/Project");
+
+const router = express.Router();
+
+/* ================= CREATE PROJECT ================= */
+router.post("/", async (req, res) => {
+  try {
+    const project = new Project(req.body);
+    await project.save();
+    res.status(201).json(project);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/* ================= GET ALL PROJECTS (ADMIN) ================= */
+router.get("/", async (req, res) => {
+  try {
+    const projects = await Project.find()
+      .populate("manager_id", "full_name email")
+      .populate("team_manager_id", "full_name email")
+      .sort({ createdAt: -1 });
+
+    res.json(projects);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+/* ================= ASSIGN PROJECT TO PROJECT MANAGER ================= */
+router.post("/assign", async (req, res) => {
+  try {
+    const { projectId, managerId } = req.body;
+
+    if (!projectId || !managerId) {
+      return res.status(400).json({ message: "Missing data" });
+    }
+
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { manager_id: managerId },
+      { new: true }
+    );
+
+    res.json({ message: "Project assigned to Project Manager", project });
+  } catch (err) {
+    res.status(500).json({ message: "Assignment failed" });
+  }
+});
+
+/* ================= ASSIGN PROJECT TO TEAM MANAGER ================= */
+router.post("/assign-team-manager", async (req, res) => {
+  try {
+    const { projectId, teamManagerId } = req.body;
+
+    if (!projectId || !teamManagerId) {
+      return res.status(400).json({ message: "Missing data" });
+    }
+
+    const project = await Project.findByIdAndUpdate(
+      projectId,
+      { team_manager_id: teamManagerId },
+      { new: true }
+    );
+
+    res.json({ message: "Project assigned to Team Manager", project });
+  } catch (err) {
+    res.status(500).json({ message: "Assignment failed" });
+  }
+});
+
+/* ================= TEAM MANAGER → GET ASSIGNED PROJECTS ================= */
+router.get("/assigned-manager/:managerId", async (req, res) => {
+  try {
+    const projects = await Project.find({
+      team_manager_id: req.params.managerId
+    }).select("_id name");
+
+    res.json(projects);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch projects" });
+  }
+});
+
+module.exports = router;
+
+
+Today Task :
+
+-Update URL's
+-Update Sidebar 
+-Team Manager can Add tasks to employee and Employee can show this task 
+-Update Project Sections 
+-In Employee side it can view particular tasks assigned by Team Manager nd also Add Upload Button with new Page
+

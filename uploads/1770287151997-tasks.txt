@@ -1,0 +1,53 @@
+Completed Work :
+
+Role Management
+
+Role Based Login 
+Admin Full Access - (Level : 1)
+Project Manager (All projects & tasks access) - (Level : 2)
+Team Leader (Allocated projects & tasks access) - (Level : 3)
+Employee  (Allocated tasks) - (Level : 4)
+
+■  Dashboard
+-One dashboard common for (Admin,Project Manager, Team Manager, Employee)
+
+■Projects:
+-Create / Edit / Delete Projects
+Project Name & Description with basic details
+-Task Management
+Create / Edit / Delete Task Details 
+-Admin can add Clients, Teams, Employee, Project, Tasks, Users 
+-Admin can assign Project to Project Manager , Project Manager assign to Team Manager 
+-Team Manager assign project to Employee 
+
+■Tasks:
+-Employee can see your tasks 
+-Upload task in zip,txt,image etc format
+-uploaded task are show in team manager dashboard also show zip,txt,screenshotes etc
+
+In Progress:
+
+-Update card section(tasks added in multiples cards like todo/cancelled/progress)
+-Update UI
+
+Pending Work:
+
+-Announcement
+-Reminders
+-Reports
+-Chats
+-Project and Team Manager can change status pending/cancelled/completed
+-Team manager assign to changed projects 
+-Project Manager show Completed changed Projects
+_update status 
+
+
+
+
+
+
+
+
+
+
+
