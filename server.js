@@ -34,8 +34,8 @@ app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
 mongoose.connect(
   "mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/task_manager?retryWrites=true&w=majority"
 )
-.then(() => console.log("MongoDB Connected"))
-.catch(err => console.log("MongoDB connection error:", err));
+  .then(() => console.log("MongoDB Connected"))
+  .catch(err => console.log("MongoDB connection error:", err));
 
 const admin = {
   id: 1,
@@ -55,27 +55,17 @@ app.post("/api/login", async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ email }).select("+password").populate("role_id");
-    console.log("User found in DB:", user); // Step 2
-
-    if (!user) {
-      console.log("User not found");
-      return res.status(401).json({ message: "User not available" });
-    }
+    const user = await User.findOne({ email })
+      .select("+password")
+      .populate("role_id");
 
     const isMatch = await bcrypt.compare(password, user.password);
-    console.log("Password match result:", isMatch); // Step 3
-
-    if (!isMatch) {
-      console.log("Invalid password");
-      return res.status(401).json({ message: "Invalid password" });
-    }
 
     const token = jwt.sign(
       {
         id: user._id,
         email: user.email,
-        role: user.role_id ? user.role_id.name : "Employee",
+        role: user.role_id ? user.role_id.name : "Employee"
       },
       SECRET_KEY,
       { expiresIn: "1h" }
