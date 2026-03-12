@@ -32,7 +32,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
 
 mongoose
-  .connect("mongodb+srv://dbuser:dbuser123@cluster0.mongodb.net/task_manager")
+  .connect("mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/?appName=User")
   .then(async () => {
     console.log("MongoDB Connected");
     await seedRoles();
