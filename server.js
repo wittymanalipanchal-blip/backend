@@ -46,7 +46,7 @@ const admin = {
   role : "admin"
 };
 
-app.post("/api/login", async (req, res) => {
+app.get("/api/login", async (req, res) => {
   const { email, password, role } = req.body;
 
  
