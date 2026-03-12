@@ -45,30 +45,29 @@ const admin = {
 };
 
 app.post("/api/login", async (req, res) => {
-  const { email, password, role } = req.body;
+  console.log("Login request body:", req.body); // Step 1
 
-
+  const { email, password } = req.body;
 
   if (!email || !password) {
+    console.log("Email or password missing");
     return res.status(400).json({ message: "Email and password required" });
   }
 
   try {
-    const user = await User.findOne({ email })
-      .select("+password")
-      .populate("role_id");
+    const user = await User.findOne({ email }).select("+password").populate("role_id");
+    console.log("User found in DB:", user); // Step 2
 
     if (!user) {
+      console.log("User not found");
       return res.status(401).json({ message: "User not available" });
     }
 
-    if (!user.password) {
-      return res.status(500).json({ message: "Password missing in DB" });
-    }
-
     const isMatch = await bcrypt.compare(password, user.password);
+    console.log("Password match result:", isMatch); // Step 3
 
     if (!isMatch) {
+      console.log("Invalid password");
       return res.status(401).json({ message: "Invalid password" });
     }
 
@@ -76,11 +75,13 @@ app.post("/api/login", async (req, res) => {
       {
         id: user._id,
         email: user.email,
-        role: user.role_id ? user.role_id.name : "Employee"
+        role: user.role_id ? user.role_id.name : "Employee",
       },
       SECRET_KEY,
       { expiresIn: "1h" }
     );
+
+    console.log("Token generated successfully");
 
     res.status(200).json({
       message: "Login successful",
@@ -89,13 +90,12 @@ app.post("/api/login", async (req, res) => {
         id: user._id,
         name: user.full_name,
         email: user.email,
-        role: user.role_id.name,
-        role_id: user.role_id._id
-      }
+        role: user.role_id ? user.role_id.name : "Employee",
+        role_id: user.role_id ? user.role_id._id : null,
+      },
     });
-
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error); // Step 4
     res.status(500).json({ message: "Login failed" });
   }
 });
