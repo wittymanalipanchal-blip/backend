@@ -32,7 +32,7 @@ app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
 
 mongoose
-  .connect("mongodb://127.0.0.1:27017/task_manager")
+  .connect("mongodb+srv://username:password@cluster0.mongodb.net/task_manager")
   .then(async () => {
     console.log("MongoDB Connected");
     await seedRoles();
@@ -183,7 +183,8 @@ app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
 
 
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Server running");
-});
+const PORT = process.env.PORT || 5000;
 
+app.listen(PORT, () => {
+  console.log("Server running on port " + PORT);
+});
