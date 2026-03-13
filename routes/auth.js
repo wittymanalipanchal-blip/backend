@@ -9,42 +9,38 @@ const SECRET_KEY = "mySecretKey123";
 router.post("/login", async (req, res) => {
   const { email, password } = req.body;
 
-  if (!email || !password) {
-    return res.status(400).json({ message: "All fields required" });
+  try {
+    const user = await User.findOne({ email }).select("+password").populate("role_id");
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        role: user.role_id ? user.role_id.name : "Employee"
+      },
+      SECRET_KEY,
+      { expiresIn: "1h" }
+    );
+
+    res.json({
+      message: "Login successful",
+      token,
+      user: {
+        id: user._id,
+        name: user.full_name,
+        email: user.email,
+        role: user.role_id ? user.role_id.name : "Employee"
+      }
+    });
+
+  } catch (err) {
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Login failed" });
   }
-
-  const user = await User.findOne({ email }).populate("role_id");
-  if (!user) {
-    return res.status(401).json({ message: "User not found" });
-  }
-
-  if (user.status !== "ACTIVE") {
-    return res.status(403).json({ message: "Account inactive" });
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    return res.status(401).json({ message: "Invalid password" });
-  }
-
-  const token = jwt.sign(
-    {
-      id: user._id,
-      role: user.role_id.name
-    },
-    SECRET_KEY,
-    { expiresIn: "1h" }
-  );
-
-  res.json({
-    token,
-    user: {
-      id: user._id,
-      name: user.full_name,
-      email: user.email,
-      role: user.role_id.name
-    }
-  });
 });
 
 router.get("/project-managers", async (req, res) => {

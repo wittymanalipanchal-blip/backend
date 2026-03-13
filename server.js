@@ -43,6 +43,30 @@ const admin = {
   password: "2406",
   role: "admin"
 };
+const Role = require("./models/Role");
+
+app.get("/api/users/seed-admin", async (req, res) => {
+  try {
+    const adminRole = await Role.findOne({ name: "Admin" });
+    if (!adminRole) return res.status(400).json({ message: "Admin role not found" });
+
+    const hashedPassword = await bcrypt.hash("2406", 10);
+
+    const adminUser = new User({
+      full_name: "Manali",
+      email: "manali@gmail.com",
+      password: hashedPassword,
+      role_id: adminRole._id,
+    });
+
+    await adminUser.save();
+
+    res.json({ message: "Admin user created", user: adminUser });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to create admin" });
+  }
+});
 
 app.post("/api/login", async (req, res) => {
   console.log("Login request body:", req.body); // Step 1

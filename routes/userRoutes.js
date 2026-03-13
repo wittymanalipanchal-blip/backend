@@ -124,36 +124,36 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.post("/login", async (req, res) => {
-  const { email, password, role } = req.body;
+// router.post("/login", async (req, res) => {
+//   const { email, password, role } = req.body;
 
-  try {
-    const user = await User.findOne({ email })
-      .select("+password")
-      .populate("role_id");
+//   try {
+//     const user = await User.findOne({ email })
+//       .select("+password")
+//       .populate("role_id");
 
-    if (!user) return res.status(404).json({ message: "User not found" });
+//     if (!user) return res.status(404).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(401).json({ message: "Invalid password" });
+//     const isMatch = await bcrypt.compare(password, user.password);
+//     if (!isMatch) return res.status(401).json({ message: "Invalid password" });
 
-    if (user.role_id.name !== role) {
-      return res.status(403).json({ message: "Role mismatch" });
-    }
+//     if (user.role_id.name !== role) {
+//       return res.status(403).json({ message: "Role mismatch" });
+//     }
 
-    res.json({
-      message: "Login successful",
-      user: {
-        id: user._id,
-        name: user.full_name,
-        email: user.email,
-        role: user.role_id.name,
-      },
-    });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+//     res.json({
+//       message: "Login successful",
+//       user: {
+//         id: user._id,
+//         name: user.full_name,
+//         email: user.email,
+//         role: user.role_id.name,
+//       },
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message });
+//   }
+// });
 // router.get("/employees", async (req, res) => {
 //   const employees = await User.find({ role: "employee" })
 //     .select("_id full_name email");
