@@ -34,7 +34,13 @@ app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
 mongoose.connect(
   "mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/task_manager?retryWrites=true&w=majority"
 )
-  .then(() => console.log("MongoDB Connected"))
+  .then(async () => {
+    console.log("MongoDB Connected");
+    
+    await seedRoles();
+    console.log("Roles seeded");
+
+  })
   .catch(err => console.log("MongoDB connection error:", err));
 
 const admin = {
@@ -50,17 +56,21 @@ app.get("/api/users/seed-admin", async (req, res) => {
     const adminRole = await Role.findOne({ name: "Admin" });
     if (!adminRole) return res.status(400).json({ message: "Admin role not found" });
 
-    const hashedPassword = await bcrypt.hash("2406", 10);
+    const existingAdmin = await User.findOne({ email: "manali@gmail.com" });
+    if (existingAdmin) {
+      return res.json({ message: "Admin already exists", user: existingAdmin });
+    }
 
+    const hashedPassword = await bcrypt.hash("2406", 10);
     const adminUser = new User({
       full_name: "Manali",
       email: "manali@gmail.com",
       password: hashedPassword,
       role_id: adminRole._id,
+      status: "ACTIVE",
     });
 
     await adminUser.save();
-
     res.json({ message: "Admin user created", user: adminUser });
   } catch (err) {
     console.error(err);
@@ -68,51 +78,51 @@ app.get("/api/users/seed-admin", async (req, res) => {
   }
 });
 
-app.post("/api/login", async (req, res) => {
-  console.log("Login request body:", req.body); // Step 1
+// app.post("/api/login", async (req, res) => {
+//   console.log("Login request body:", req.body); // Step 1
 
-  const { email, password } = req.body;
+//   const { email, password } = req.body;
 
-  if (!email || !password) {
-    console.log("Email or password missing");
-    return res.status(400).json({ message: "Email and password required" });
-  }
+//   if (!email || !password) {
+//     console.log("Email or password missing");
+//     return res.status(400).json({ message: "Email and password required" });
+//   }
 
-  try {
-    const user = await User.findOne({ email })
-      .select("+password")
-      .populate("role_id");
+//   try {
+//     const user = await User.findOne({ email })
+//       .select("+password")
+//       .populate("role_id");
 
-    const isMatch = await bcrypt.compare(password, user.password);
+//     const isMatch = await bcrypt.compare(password, user.password);
 
-    const token = jwt.sign(
-      {
-        id: user._id,
-        email: user.email,
-        role: user.role_id ? user.role_id.name : "Employee"
-      },
-      SECRET_KEY,
-      { expiresIn: "1h" }
-    );
+//     const token = jwt.sign(
+//       {
+//         id: user._id,
+//         email: user.email,
+//         role: user.role_id ? user.role_id.name : "Employee"
+//       },
+//       SECRET_KEY,
+//       { expiresIn: "1h" }
+//     );
 
-    console.log("Token generated successfully");
+//     console.log("Token generated successfully");
 
-    res.status(200).json({
-      message: "Login successful",
-      token,
-      user: {
-        id: user._id,
-        name: user.full_name,
-        email: user.email,
-        role: user.role_id ? user.role_id.name : "Employee",
-        role_id: user.role_id ? user.role_id._id : null,
-      },
-    });
-  } catch (error) {
-    console.error("Login error:", error); // Step 4
-    res.status(500).json({ message: "Login failed" });
-  }
-});
+//     res.status(200).json({
+//       message: "Login successful",
+//       token,
+//       user: {
+//         id: user._id,
+//         name: user.full_name,
+//         email: user.email,
+//         role: user.role_id ? user.role_id.name : "Employee",
+//         role_id: user.role_id ? user.role_id._id : null,
+//       },
+//     });
+//   } catch (error) {
+//     console.error("Login error:", error); // Step 4
+//     res.status(500).json({ message: "Login failed" });
+//   }
+// });
 
 app.post("/api/client/create", async (req, res) => {
   try {
