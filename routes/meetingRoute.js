@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const Meeting = require("../models/meeting");
+const Meeting = require("../models/Meeting");
 const multer = require("multer");
 
 const storage = multer.diskStorage({
@@ -19,18 +19,26 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
 
         const { zoomLink, meetingTime, createdBy } = req.body;
 
-        const meeting = await Meeting.create({
+        if (!zoomLink || !meetingTime) {
+            return res.status(400).json({ message: "Missing fields" });
+        }
+
+        const meeting = new Meeting({
             zoomLink,
             meetingTime,
-            scrumSheet: req.file ? `/uploads/${req.file.filename}` : "",
-            createdBy
+            createdBy,
+            scrumSheet: req.file ? `/uploads/${req.file.filename}` : ""
         });
+
+        await meeting.save();
 
         res.json(meeting);
 
     } catch (err) {
+
         console.error(err);
         res.status(500).json({ message: "Meeting create failed" });
+
     }
 });
 
