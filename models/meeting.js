@@ -13,6 +13,12 @@ const meetingSchema = new mongoose.Schema(
         scrumSheet: {
             type: String,
         },
+        teamManagers: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            }
+        ],
         createdBy: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User"

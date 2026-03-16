@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const User = require("../models/User");
 const Meeting = require("../models/meeting");
 const multer = require("multer");
 
@@ -17,7 +18,7 @@ const upload = multer({ storage });
 router.post("/add", upload.single("scrumSheet"), async (req, res) => {
     try {
 
-        const { zoomLink, meetingTime, createdBy } = req.body;
+        const { zoomLink, meetingTime, createdBy, teamManagers } = req.body;
 
         if (!zoomLink || !meetingTime) {
             return res.status(400).json({ message: "Missing fields" });
@@ -27,6 +28,7 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
             zoomLink,
             meetingTime,
             createdBy,
+            teamManagers,
             scrumSheet: req.file ? `/uploads/${req.file.filename}` : ""
         });
 
@@ -47,6 +49,7 @@ router.get("/", async (req, res) => {
     try {
 
         const meetings = await Meeting.find()
+            .populate("teamManagers", "full_name")
             .populate("createdBy", "full_name")
             .sort({ createdAt: -1 });
 
@@ -56,5 +59,6 @@ router.get("/", async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 });
+
 
 module.exports = router;
