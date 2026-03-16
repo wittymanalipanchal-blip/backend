@@ -180,38 +180,59 @@ router.get("/employees", async (req, res) => {
   }
 });
 
+// router.get("/team-managers", async (req, res) => {
+//   try {
+//     const users = await User.find()
+//       .populate("role_id");
+
+//     const teamManagers = users.filter(
+//       (u) => u.role_id?.name === "Team Manager"
+//     );
+
+//     res.json(teamManagers);
+//   } catch (err) {
+//     res.status(500).json({ message: "Failed to fetch team managers" });
+//   }
+// });
+
+// router.get("/team-managers", async (req, res) => {
+//   try {
+//     const managerRole = await Role.findOne({ name: "Team Manager" });
+
+//     if (!managerRole) return res.json([]);
+
+//     const managers = await User.find({
+//       role_id: managerRole._id,
+//       status: "ACTIVE",
+//     }).select("_id full_name email");
+
+//     res.json(managers);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
+
 router.get("/team-managers", async (req, res) => {
   try {
-    const users = await User.find()
-      .populate("role_id");
 
-    const teamManagers = users.filter(
-      (u) => u.role_id?.name === "Team Manager"
-    );
-
-    res.json(teamManagers);
-  } catch (err) {
-    res.status(500).json({ message: "Failed to fetch team managers" });
-  }
-});
-
-router.get("/team-managers", async (req, res) => {
-  try {
     const managerRole = await Role.findOne({ name: "Team Manager" });
 
-    if (!managerRole) return res.json([]);
+    if (!managerRole) {
+      return res.json([]);
+    }
 
     const managers = await User.find({
       role_id: managerRole._id,
-      status: "ACTIVE",
+      status: "ACTIVE"
     }).select("_id full_name email");
 
     res.json(managers);
+
   } catch (err) {
+    console.error("TEAM MANAGER FETCH ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
-
 
 router.get("/project-managers", async (req, res) => {
   try {
