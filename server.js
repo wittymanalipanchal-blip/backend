@@ -21,6 +21,7 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const profileRoutes = require("./routes/ProfileRoute");
 const eventRoutes = require("./routes/eventRoute");
 const reportRoutes = require("./routes/reportRoutes");
+const meetingRoutes = require("./routes/meetingRoute");
 const bcrypt = require("bcryptjs");
 app.use(cors());
 app.use(express.json({ limit: "10000mb" }));
@@ -203,7 +204,7 @@ app.use("/api/notifications", notificationRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
-
+app.use("/api/meetings", meetingRoutes);
 
 const PORT = process.env.PORT || 5000;
 
