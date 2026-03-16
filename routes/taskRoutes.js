@@ -39,7 +39,7 @@ router.get("/", async (req, res) => {
 
 router.post("/assign-task", upload.single("file"), async (req, res) => {
   try {
-    const { project_id, employee_id, work_type, assigned_by, description } = req.body;
+    const { project_id, employee_id, work_type, assigned_by, description, priority } = req.body;
 
     if (!project_id || !employee_id || !work_type || !assigned_by) {
       return res.status(400).json({ message: "Missing fields" });
@@ -60,6 +60,7 @@ router.post("/assign-task", upload.single("file"), async (req, res) => {
       employee_id: new mongoose.Types.ObjectId(employee_id),
       assigned_by: new mongoose.Types.ObjectId(assigned_by),
       work_type,
+      priority: priority || "Medium", 
       description: description || "",
       status: "Assigned",
       uploads: uploadedFiles,
@@ -189,6 +190,7 @@ router.get("/employee-tasks/:id", async (req, res) => {
       _id: task._id,
       work_type: task.work_type,
       status: task.status,
+      priority: task.priority,
       project_id: task.project_id,
       assigned_by: task.assigned_by,
       description: task.description || "",

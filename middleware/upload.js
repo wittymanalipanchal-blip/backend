@@ -11,12 +11,32 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({
+
   storage,
+
   fileFilter: (req, file, cb) => {
-    const allowed = /zip|png|jpg|jpeg|txt|pdf/;
-    const ext = path.extname(file.originalname).toLowerCase();
-    cb(null, allowed.test(ext));
+ 
+    const allowedExt = /zip|png|jpg|jpeg|txt|pdf/;
+
+    const allowedMime = /zip|png|jpg|jpeg|txt|pdf/;
+ 
+    const extname = allowedExt.test(path.extname(file.originalname).toLowerCase());
+
+    const mimetype = allowedMime.test(file.mimetype);
+ 
+    if (extname && mimetype) {
+
+      return cb(null, true);
+
+    } else {
+
+      cb(new Error("File type not allowed"));
+
+    }
+ 
   }
+
 });
+ 
 
 module.exports = upload;
