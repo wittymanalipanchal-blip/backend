@@ -3,6 +3,7 @@ const router = express.Router();
 const User = require("../models/User");
 const Meeting = require("../models/meeting");
 const multer = require("multer");
+const mongoose = require("mongoose");
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -80,7 +81,7 @@ router.get("/", async (req, res) => {
 router.get("/:userId", async (req, res) => {
   try {
 
-    const { userId } = req.params;
+    const userId = new mongoose.Types.ObjectId(req.params.userId);
 
     const meetings = await Meeting.find({
       teamManagers: userId
