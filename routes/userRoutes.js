@@ -51,6 +51,26 @@ router.get("/", async (req, res) => {
     res.status(500).json({ message: "Fetch failed" });
   }
 });
+
+router.get("/employees", async (req, res) => {
+  try {
+    const employeeRole = await Role.findOne({ name: "Employee" });
+
+    if (!employeeRole) return res.json([]);
+
+    const employees = await User.find({
+      role_id: employeeRole._id,
+      status: { $regex: "^ACTIVE", $options: "i" }  
+    }).select("_id full_name email");
+
+    res.json(employees);
+
+  } catch (err) {
+    console.error("EMPLOYEE FETCH ERROR:", err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   try {
     const user = await User.findById(req.params.id)
@@ -161,24 +181,7 @@ router.delete("/:id", async (req, res) => {
 //   res.json(employees);
 // });
 
-router.get("/employees", async (req, res) => {
-  try {
-    const employeeRole = await Role.findOne({ name: "Employee" });
 
-    if (!employeeRole) return res.json([]);
-
-    const employees = await User.find({
-      role_id: employeeRole._id,
-      status: { $regex: "^ACTIVE", $options: "i" }  
-    }).select("_id full_name email");
-
-    res.json(employees);
-
-  } catch (err) {
-    console.error("EMPLOYEE FETCH ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 // router.get("/team-managers", async (req, res) => {
 //   try {
