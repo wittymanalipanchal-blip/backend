@@ -84,19 +84,15 @@ router.get("/:userId", async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.params.userId);
 
     const meetings = await Meeting.find({
-      $or: [
-        { teamManagers: { $in: [userId] } }, 
-        { createdBy: userId }               
-      ]
+      teamManagers: userId
     })
       .populate("teamManagers", "full_name")
-      .populate("createdBy", "full_name")
       .sort({ createdAt: -1 });
 
     res.json(meetings);
 
   } catch (err) {
-    console.error(err);
+    console.error("MEETING FETCH ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
