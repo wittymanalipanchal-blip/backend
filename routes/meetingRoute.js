@@ -46,33 +46,23 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
 });
 
 
-// router.get("/", async (req, res) => {
-//     try {
-
-//         const meetings = await Meeting.find()
-//             .populate("teamManagers", "full_name")
-//             .populate("createdBy", "full_name")
-//             .sort({ createdAt: -1 });
-
-//         res.json(meetings);
-
-//     } catch (err) {
-//         res.status(500).json({ message: err.message });
-//     }
-// });
-
-// GET ALL
 router.get("/", async (req, res) => {
   try {
+    const admins = await User.find({ role: "Admin" }).select("_id");
 
-    const meetings = await Meeting.find()
+    const adminIds = admins.map(a => a._id);
+
+    const meetings = await Meeting.find({
+      createdBy: { $in: adminIds }
+    })
       .populate("teamManagers", "full_name")
-      .populate("createdBy", "full_name")
+      .populate("createdBy", "full_name role")
       .sort({ createdAt: -1 });
 
     res.json(meetings);
 
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: err.message });
   }
 });
