@@ -26,8 +26,7 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
       zoomLink,
       meetingTime,
       createdBy: new mongoose.Types.ObjectId(createdBy),
-
-      // 🔥 IMPORTANT FIX
+      
       teamManagers: teamManagers
         ? Array.isArray(teamManagers)
           ? teamManagers
