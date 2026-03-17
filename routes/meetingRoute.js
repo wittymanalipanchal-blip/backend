@@ -45,20 +45,55 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
 });
 
 
+// router.get("/", async (req, res) => {
+//     try {
+
+//         const meetings = await Meeting.find()
+//             .populate("teamManagers", "full_name")
+//             .populate("createdBy", "full_name")
+//             .sort({ createdAt: -1 });
+
+//         res.json(meetings);
+
+//     } catch (err) {
+//         res.status(500).json({ message: err.message });
+//     }
+// });
+
+// GET ALL
 router.get("/", async (req, res) => {
-    try {
+  try {
 
-        const meetings = await Meeting.find()
-            .populate("teamManagers", "full_name")
-            .populate("createdBy", "full_name")
-            .sort({ createdAt: -1 });
+    const meetings = await Meeting.find()
+      .populate("teamManagers", "full_name")
+      .populate("createdBy", "full_name")
+      .sort({ createdAt: -1 });
 
-        res.json(meetings);
+    res.json(meetings);
 
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
+// GET BY USER (🔥 FIXED)
+router.get("/user/:userId", async (req, res) => {
+  try {
+
+    const { userId } = req.params;
+
+    const meetings = await Meeting.find({
+      teamManagers: userId
+    })
+      .populate("teamManagers", "full_name")
+      .sort({ createdAt: -1 });
+
+    res.json(meetings);
+
+  } catch (err) {
+    console.error("MEETING FETCH ERROR:", err);
+    res.status(500).json({ message: err.message });
+  }
+});
 
 module.exports = router;
