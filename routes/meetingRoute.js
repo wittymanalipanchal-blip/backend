@@ -76,8 +76,8 @@ router.get("/", async (req, res) => {
   }
 });
 
-// GET BY USER (🔥 FIXED)
-router.get("/user/:userId", async (req, res) => {
+
+router.get("/:userId", async (req, res) => {
   try {
 
     const { userId } = req.params;
