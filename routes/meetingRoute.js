@@ -84,9 +84,13 @@ router.get("/:userId", async (req, res) => {
     const userId = new mongoose.Types.ObjectId(req.params.userId);
 
     const meetings = await Meeting.find({
-      teamManagers: userId
+      $or: [
+        { teamManagers: { $in: [userId] } }, 
+        { createdBy: userId }              
+      ]
     })
       .populate("teamManagers", "full_name")
+      .populate("createdBy", "full_name")
       .sort({ createdAt: -1 });
 
     res.json(meetings);
