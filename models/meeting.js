@@ -7,7 +7,7 @@ const meetingSchema = new mongoose.Schema(
             required: true,
         },
         meetingTime: {
-            type: Date,
+            type: String,
             required: true,
         },
         scrumSheet: {
