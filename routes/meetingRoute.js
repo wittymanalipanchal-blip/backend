@@ -81,19 +81,15 @@ router.get("/", async (req, res) => {
 
     const Role = require("../models/Role");
 
-    // Admin role find करो
     const adminRole = await Role.findOne({ name: "Admin" });
 
     if (!adminRole) return res.json([]);
 
-    // Admin users find करो
     const admins = await User.find({
       role_id: adminRole._id
     }).select("_id");
 
     const adminIds = admins.map(a => a._id);
-
-    // सिर्फ Admin meetings
     const meetings = await Meeting.find({
       createdBy: { $in: adminIds }
     })
