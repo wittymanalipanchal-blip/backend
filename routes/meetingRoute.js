@@ -206,22 +206,45 @@ router.get("/", async (req, res) => {
 //   }
 // });
 
+// router.get("/user/:userId", async (req, res) => {
+//   try {
+
+//     const userId = new mongoose.Types.ObjectId(req.params.userId);
+
+//     const meetings = await Meeting.find({
+//       $or: [
+//         { createdBy: userId },
+//         { teamManagers: { $in: [userId] } }
+//       ]
+//     })
+//       .populate("teamManagers", "full_name email")
+//       .populate("createdBy", "full_name")
+//       .sort({ createdAt: -1 });
+
+//     console.log("USER MEETINGS:", meetings);
+
+//     res.json(meetings);
+
+//   } catch (err) {
+//     console.error("FETCH ERROR:", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
 router.get("/user/:userId", async (req, res) => {
   try {
 
-    const userId = new mongoose.Types.ObjectId(req.params.userId);
+    const userId = req.params.userId;
 
     const meetings = await Meeting.find({
       $or: [
         { createdBy: userId },
-        { teamManagers: { $in: [userId] } }
+        { teamManagers: userId }
       ]
     })
       .populate("teamManagers", "full_name email")
       .populate("createdBy", "full_name")
       .sort({ createdAt: -1 });
-
-    console.log("USER MEETINGS:", meetings);
 
     res.json(meetings);
 
