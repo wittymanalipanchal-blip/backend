@@ -60,6 +60,7 @@ router.get("/", async (req, res) => {
       .populate("manager_id", "full_name email")
       .populate("team_manager_id", "full_name email")
       .populate("created_by_admin", "full_name email")
+      .populate("client", "name company")
       .sort({ createdAt: -1 });
 
     res.json(projects);
