@@ -3,7 +3,7 @@ const Client = require("../models/Client");
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/clients", async (req, res) => {
   try {
     const clients = await Client.find().sort({ createdAt: -1 });
     res.json(clients);
@@ -12,16 +12,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
-  try {
-    const client = await Client.findById(req.params.id);
-    res.json(client);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.post("/", async (req, res) => {
+router.post("/clients", async (req, res) => {
   try {
     const client = new Client(req.body);
     await client.save();
@@ -31,7 +22,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/clients/:id", async (req, res) => {
   try {
     const updated = await Client.findByIdAndUpdate(
       req.params.id,
@@ -39,15 +30,6 @@ router.put("/:id", async (req, res) => {
       { new: true }
     );
     res.json(updated);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
-  try {
-    await Client.findByIdAndDelete(req.params.id);
-    res.json({ message: "Deleted" });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }

@@ -125,71 +125,70 @@ app.get("/api/users/seed-admin", async (req, res) => {
 //   }
 // });
 
-// app.post("/api/client/create", async (req, res) => {
-//   try {
-//     const client = new Client(req.body);
-//     await client.save();
-//     res.status(201).json(client);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+app.post("/api/client/create", async (req, res) => {
+  try {
+    const client = new Client(req.body);
+    await client.save();
+    res.status(201).json(client);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// app.get("/api/client", async (req, res) => {
-//   try {
-//     const clients = await Client.find();
-//     res.status(200).json(clients);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+app.get("/api/client", async (req, res) => {
+  try {
+    const clients = await Client.find();
+    res.status(200).json(clients);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// app.get("/api/client/:id", async (req, res) => {
-//   try {
-//     const client = await Client.findById(req.params.id);
+app.get("/api/client/:id", async (req, res) => {
+  try {
+    const client = await Client.findById(req.params.id);
 
-//     if (!client) {
-//       return res.status(404).json({ message: "Client not found" });
-//     }
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
 
-//     res.status(200).json(client);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+    res.status(200).json(client);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// app.put("/api/client/:id", async (req, res) => {
-//   try {
-//     const updatedClient = await Client.findByIdAndUpdate(
-//       req.params.id,
-//       req.body,
-//       { new: true }
-//     );
+app.put("/api/client/:id", async (req, res) => {
+  try {
+    const updatedClient = await Client.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
 
-//     if (!updatedClient) {
-//       return res.status(404).json({ message: "Client not found" });
-//     }
+    if (!updatedClient) {
+      return res.status(404).json({ message: "Client not found" });
+    }
 
-//     res.status(200).json(updatedClient);
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
+    res.status(200).json(updatedClient);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 
-// app.delete("/api/client/:id", async (req, res) => {
-//   try {
-//     const deletedClient = await Client.findByIdAndDelete(req.params.id);
+app.delete("/api/client/:id", async (req, res) => {
+  try {
+    const deletedClient = await Client.findByIdAndDelete(req.params.id);
 
-//     if (!deletedClient) {
-//       return res.status(404).json({ message: "Client not found" });
-//     }
+    if (!deletedClient) {
+      return res.status(404).json({ message: "Client not found" });
+    }
 
-//     res.status(200).json({ message: "Client deleted successfully" });
-//   } catch (err) {
-//     res.status(500).json({ message: err.message });
-//   }
-// });
-app.use("/api/clients", clientRoutes);
+    res.status(200).json({ message: "Client deleted successfully" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
 app.use("/api/projects", projectRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/uploads", express.static("uploads"));
