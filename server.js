@@ -45,7 +45,7 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
- 
+
   socket.on("createGroup", async (data) => {
     const newGroup = await Chat.create({
       chatName: data.chatName,
@@ -60,7 +60,7 @@ io.on("connection", (socket) => {
   socket.on("updateGroup", async (data) => {
     const group = await Chat.findById(data.groupId);
 
-    if (group.createdBy !== data.user) return; 
+    if (group.createdBy !== data.user) return;
 
     const updated = await Chat.findByIdAndUpdate(
       data.groupId,
@@ -77,7 +77,7 @@ io.on("connection", (socket) => {
   socket.on("deleteGroup", async ({ id, user }) => {
     const group = await Chat.findById(id);
 
-    if (group.createdBy !== user) return; 
+    if (group.createdBy !== user) return;
 
     await Chat.findByIdAndDelete(id);
     io.emit("groupDeleted", id);
@@ -282,13 +282,17 @@ app.get("/api/chat/groups", async (req, res) => {
 });
 
 app.get("/api/chat/groups/:user", async (req, res) => {
-  const user = req.params.user;
+  try {
+    const user = req.params.user;
 
-  const groups = await Chat.find({
-    members: { $in: [user] }
-  });
+    const groups = await Chat.find({
+      members: { $in: [user] }
+    });
 
-  res.json(groups);
+    res.json(groups);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const PORT = process.env.PORT || 5000;
