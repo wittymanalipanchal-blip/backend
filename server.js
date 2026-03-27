@@ -45,17 +45,23 @@ const io = new Server(server, {
 
 io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
+ 
   socket.on("createGroup", async (data) => {
-    const newGroup = await Chat.create(data);
+    const newGroup = await Chat.create({
+      chatName: data.chatName,
+      members: data.members,
+      createdBy: data.createdBy,
+      role: data.role
+    });
 
     io.emit("newGroup", newGroup);
   });
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected:");
-  });
-
   socket.on("updateGroup", async (data) => {
+    const group = await Chat.findById(data.groupId);
+
+    if (group.createdBy !== data.user) return; 
+
     const updated = await Chat.findByIdAndUpdate(
       data.groupId,
       {
@@ -68,13 +74,29 @@ io.on("connection", (socket) => {
     io.emit("groupUpdated", updated);
   });
 
-  socket.on("deleteGroup", async (id) => {
+  socket.on("deleteGroup", async ({ id, user }) => {
+    const group = await Chat.findById(id);
+
+    if (group.createdBy !== user) return; 
+
     await Chat.findByIdAndDelete(id);
     io.emit("groupDeleted", id);
   });
-  
-});
 
+  socket.on("leaveGroup", async ({ groupId, user }) => {
+    const updated = await Chat.findByIdAndUpdate(
+      groupId,
+      { $pull: { members: user } },
+      { new: true }
+    );
+
+    io.emit("groupUpdated", updated);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected");
+  });
+});
 
 mongoose.connect(
   "mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/task_manager?retryWrites=true&w=majority"
@@ -257,6 +279,16 @@ app.get("/api/chat/groups", async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
+});
+
+app.get("/api/chat/groups/:user", async (req, res) => {
+  const user = req.params.user;
+
+  const groups = await Chat.find({
+    members: { $in: [user] }
+  });
+
+  res.json(groups);
 });
 
 const PORT = process.env.PORT || 5000;

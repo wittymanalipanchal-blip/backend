@@ -12,8 +12,10 @@ const messageSchema = new mongoose.Schema({
 const chatSchema = new mongoose.Schema({
     chatName: String,
     members: [String],
+    createdBy: String,
     isGroup : { type: Boolean, default: true },
-    messages: [messageSchema]
+    messages: [messageSchema],
+    role: String,
 });
 
 module.exports = mongoose.model("Chat", chatSchema);
