@@ -12,6 +12,7 @@ const messageSchema = new mongoose.Schema({
 const chatSchema = new mongoose.Schema({
     chatName: String,
     members: [String],
+    isGroup : { type: Boolean, default: true },
     messages: [messageSchema]
 });
 

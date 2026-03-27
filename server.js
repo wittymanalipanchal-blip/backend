@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require("http");
+const { Server } = require("socket.io"); 
 const mongoose = require("mongoose");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -11,6 +13,7 @@ const app = express();
 app.use(express.json());
 const seedRoles = require("./seed/roleSeeder");
 const authRoutes = require("./routes/auth");
+const Chat = require("./models/Chat");
 const roleRoutes = require("./routes/roleRoutes");
 const User = require("./models/User");
 const announcementRoutes = require("./routes/announcementRoutes");
@@ -32,6 +35,28 @@ const SECRET_KEY = "mySecretKey123";
 app.use("/uploads", express.static("uploads"));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/project-upload", require("./routes/projectUploadRoutes"));
+
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*"
+  }
+});
+
+io.on("connection", (socket) => {
+  console.log("User connected:", socket.id);
+  socket.on("createGroup", async (data) => {
+    const newGroup = await Chat.create(data);
+
+    io.emit("newGroup", newGroup);
+  });
+  
+  socket.on("disconnect", () => {
+    console.log("User disconnected:");
+  });
+
+});
+
 
 mongoose.connect(
   "mongodb+srv://dbuser:dbuser123@user.pe23kpw.mongodb.net/task_manager?retryWrites=true&w=majority"
@@ -207,9 +232,21 @@ app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
+app.get("/api/chat/groups", async (req, res) => {
+  try{
+    const groups = await Chat.find();
+    res.json(groups);
+  }catch(err){
+    res.status(500).json({ error: err.message });
+  }
+});
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
+// app.listen(PORT, () => {
+//   console.log("Server running on port " + PORT);
+// });
+
+server.listen(PORT, () => {
   console.log("Server running on port " + PORT);
 });

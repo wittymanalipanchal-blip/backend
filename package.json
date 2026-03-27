@@ -10,7 +10,8 @@
     "lottie-react": "^2.4.1",
     "mongoose": "^9.1.5",
     "multer": "^2.0.2",
-    "react-beautiful-dnd": "^13.1.1"
+    "react-beautiful-dnd": "^13.1.1",
+    "socket.io": "^4.8.3"
   },
   "name": "backend",
   "version": "1.0.0",
