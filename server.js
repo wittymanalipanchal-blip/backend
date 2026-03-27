@@ -47,6 +47,8 @@ io.on("connection", (socket) => {
   console.log("User connected:", socket.id);
 
   socket.on("createGroup", async (data) => {
+    const uniqueMembers = [...new Set(data.members)];
+
     const newGroup = await Chat.create({
       chatName: data.chatName,
       members: data.members,
@@ -91,6 +93,27 @@ io.on("connection", (socket) => {
     );
 
     io.emit("groupUpdated", updated);
+  });
+
+  socket.on("sendMessage", async (data) => {
+    const { chatId, sender, text } = data;
+
+    const newMsg = {
+      sender,
+      text,
+      time: new Date()
+    };
+
+    const updatedChat = await Chat.findByIdAndUpdate(
+      chatId,
+      { $push: { messages: newMsg } },
+      { new: true }
+    );
+
+    io.emit("receiveMessage", {
+      chatId,
+      message: newMsg
+    });
   });
 
   socket.on("disconnect", () => {
@@ -272,14 +295,14 @@ app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
-app.get("/api/chat/groups", async (req, res) => {
-  try {
-    const groups = await Chat.find();
-    res.json(groups);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get("/api/chat/groups", async (req, res) => {
+//   try {
+//     const groups = await Chat.find();
+//     res.json(groups);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 app.get("/api/chat/groups/:user", async (req, res) => {
   try {
@@ -294,6 +317,16 @@ app.get("/api/chat/groups/:user", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+app.get("/api/chat/:chatId", async (req, res) => {
+  try {
+    const chat = await Chat.findById(req.params.chatId);
+    res.json(chat);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 const PORT = process.env.PORT || 5000;
 
