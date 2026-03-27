@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io"); 
+const { Server } = require("socket.io");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
@@ -50,11 +50,29 @@ io.on("connection", (socket) => {
 
     io.emit("newGroup", newGroup);
   });
-  
+
   socket.on("disconnect", () => {
     console.log("User disconnected:");
   });
 
+  socket.on("updateGroup", async (data) => {
+    const updated = await Chat.findByIdAndUpdate(
+      data.groupId,
+      {
+        chatName: data.chatName,
+        members: data.members,
+      },
+      { new: true }
+    );
+
+    io.emit("groupUpdated", updated);
+  });
+
+  socket.on("deleteGroup", async (id) => {
+    await Chat.findByIdAndDelete(id);
+    io.emit("groupDeleted", id);
+  });
+  
 });
 
 
@@ -63,7 +81,7 @@ mongoose.connect(
 )
   .then(async () => {
     console.log("MongoDB Connected");
-    
+
     await seedRoles();
     console.log("Roles seeded");
 
@@ -233,10 +251,10 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
 app.get("/api/chat/groups", async (req, res) => {
-  try{
+  try {
     const groups = await Chat.find();
     res.json(groups);
-  }catch(err){
+  } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
