@@ -51,7 +51,7 @@ io.on("connection", (socket) => {
 
     const newGroup = await Chat.create({
       chatName: data.chatName,
-      members: data.members,
+      members: uniqueMembers,
       createdBy: data.createdBy,
       role: data.role
     });
@@ -295,14 +295,17 @@ app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
-// app.get("/api/chat/groups", async (req, res) => {
-//   try {
-//     const groups = await Chat.find();
-//     res.json(groups);
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// });
+
+app.get("/api/chat/groups", async (req, res) => {
+  try {
+    const groups = await Chat.find();
+    console.log("GROUPS 👉", groups); 
+    res.json(groups);
+  } catch (err) {
+    console.error("GROUP ERROR 👉", err);
+    res.status(500).json({ error: err.message });
+  }
+});
 
 app.get("/api/chat/groups/:user", async (req, res) => {
   try {
