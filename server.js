@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
   socket.on("updateGroup", async (data) => {
     const group = await Chat.findById(data.groupId);
 
-    if (group.createdBy !== data.user) return;
+    if (group.createdBy !== data.createdBy) return;
 
     const updated = await Chat.findByIdAndUpdate(
       data.groupId,
