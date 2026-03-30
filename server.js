@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
   socket.on("updateGroup", async (data) => {
     const group = await Chat.findById(data.groupId);
 
-    if (group.createdBy !== data.createdBy) return;
+    if (group.createdBy !== data.user) return;
 
     const updated = await Chat.findByIdAndUpdate(
       data.groupId,
@@ -119,6 +119,24 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
+  socket.on("startPersonalChat", async ({ user1, user2 }) => {
+    let chat = await Chat.findOne({
+      isGroup: false,
+      members: { $all: [user1, user2] }
+    });
+
+    if (!chat) {
+      chat = await Chat.create({
+        chatName: null,
+        members: [user1, user2],
+        isGroup: false
+      });
+    }
+
+    // ❗ IMPORTANT FIX
+    socket.emit("personalChatCreated", chat);
+  });
+
 });
 
 mongoose.connect(
@@ -299,7 +317,7 @@ app.use("/api/chat", chatRoutes);
 app.get("/api/chat/groups", async (req, res) => {
   try {
     const groups = await Chat.find();
-    console.log("GROUPS 👉", groups); 
+    console.log("GROUPS 👉", groups);
     res.json(groups);
   } catch (err) {
     console.error("GROUP ERROR 👉", err);
