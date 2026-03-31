@@ -96,13 +96,27 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async (data) => {
-    const { chatId, sender, text } = data;
+    const { chatId, sender, text, file, image, emoji, fileName } = data;
 
     const newMsg = {
       sender,
-      text,
+      text: text || "",
+      file: file || "",
+      fileName: fileName || "",
+      image: image || "",
+      emoji: emoji || "",
       time: new Date()
     };
+
+    await Chat.findByIdAndUpdate(
+      chatId,
+      { $push: { messages: newMsg } }
+    );
+
+    io.emit("receiveMessage", {
+      chatId,
+      message: newMsg
+    });
 
     const updatedChat = await Chat.findByIdAndUpdate(
       chatId,
@@ -314,39 +328,39 @@ app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
 
-app.get("/api/chat/groups", async (req, res) => {
-  try {
-    const groups = await Chat.find();
-    console.log("GROUPS 👉", groups);
-    res.json(groups);
-  } catch (err) {
-    console.error("GROUP ERROR 👉", err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get("/api/chat/groups", async (req, res) => {
+//   try {
+//     const groups = await Chat.find();
+//     console.log("GROUPS 👉", groups);
+//     res.json(groups);
+//   } catch (err) {
+//     console.error("GROUP ERROR 👉", err);
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
-app.get("/api/chat/groups/:user", async (req, res) => {
-  try {
-    const user = req.params.user;
+// app.get("/api/chat/groups/:user", async (req, res) => {
+//   try {
+//     const user = req.params.user;
 
-    const groups = await Chat.find({
-      members: { $in: [user] }
-    });
+//     const groups = await Chat.find({
+//       members: { $in: [user] }
+//     });
 
-    res.json(groups);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+//     res.json(groups);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
-app.get("/api/chat/:chatId", async (req, res) => {
-  try {
-    const chat = await Chat.findById(req.params.chatId);
-    res.json(chat);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+// app.get("/api/chat/:chatId", async (req, res) => {
+//   try {
+//     const chat = await Chat.findById(req.params.chatId);
+//     res.json(chat);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// });
 
 
 const PORT = process.env.PORT || 5000;
