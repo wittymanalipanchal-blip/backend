@@ -55,3 +55,19 @@ exports.getPersonalChats = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// Is naye function ko file mein niche add kar dijiye
+exports.getChatById = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const chat = await Chat.findById(chatId);
+        
+        if (!chat) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+        
+        res.json(chat);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
