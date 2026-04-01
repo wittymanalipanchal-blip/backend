@@ -96,7 +96,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("sendMessage", async (data) => {
-    const { chatId, sender, text, file, image, emoji, fileName } = data;
+    const { chatId, sender, text, file, image, emoji, fileName, replyTo } = data;
 
     const newMsg = {
       sender,
@@ -105,7 +105,9 @@ io.on("connection", (socket) => {
       fileName: fileName || "",
       image: image || "",
       emoji: emoji || "",
-      time: new Date()
+      time: new Date(),
+      chatId,
+      replyTo: replyTo || null 
     };
 
     await Chat.findByIdAndUpdate(

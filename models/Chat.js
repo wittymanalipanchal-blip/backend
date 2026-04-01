@@ -7,7 +7,13 @@ const messageSchema = new mongoose.Schema({
     fileName: String,
     image: String,
     emoji: String,
-    time: { type: Date, default: Date.now }
+    time: { type: Date, default: Date.now },
+    replyTo: {
+        sender: String,
+        text: String,
+        messageId: String,
+        time: Date
+    }
 });
 
 const chatSchema = new mongoose.Schema({
