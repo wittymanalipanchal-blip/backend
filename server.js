@@ -118,16 +118,7 @@ io.on("connection", (socket) => {
       message: newMsg
     });
 
-    const updatedChat = await Chat.findByIdAndUpdate(
-      chatId,
-      { $push: { messages: newMsg } },
-      { new: true }
-    );
-
-    io.emit("receiveMessage", {
-      chatId,
-      message: newMsg
-    });
+    
   });
 
   socket.on("disconnect", () => {
@@ -361,6 +352,20 @@ app.use("/api/chat", chatRoutes);
 //     res.status(500).json({ error: err.message });
 //   }
 // });
+// Add this above your server.listen(...)
+app.get('/api/chat/groups/:username', async (req, res) => {
+  try {
+    const { username } = req.params;
+    // Find chats where isGroup is true and the user is in the members array
+    const userGroups = await Chat.find({
+      isGroup: true,
+      members: { $in: [username] }
+    });
+    res.status(200).json(userGroups);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching groups", error });
+  }
+});
 
 
 const PORT = process.env.PORT || 5000;

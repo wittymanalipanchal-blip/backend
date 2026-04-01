@@ -71,3 +71,18 @@ exports.getChatById = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+exports.getGroupChats = async (req, res) => {
+    try {
+        const { userName } = req.params;
+
+        const groups = await Chat.find({
+            isGroup: true,
+            members: { $in: [userName] }
+        });
+
+        res.json(groups);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
