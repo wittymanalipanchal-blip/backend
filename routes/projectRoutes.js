@@ -121,7 +121,10 @@ router.post("/assign", async (req, res) => {
 
     const project = await Project.findByIdAndUpdate(
       projectId,
-      { manager_id: managerId },
+      {
+        manager_id: managerId,
+        assignedBy: req.user.id 
+      },
       { new: true }
     );
 
@@ -216,19 +219,23 @@ router.get("/team-manager-assignments", async (req, res) => {
   }
 });
 
-
 router.get("/assign/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
-    const projects = await Project.find({ manager_id: userId })
-      .populate("manager_id", "full_name email")
-      .populate("created_by_admin", "full_name");
+    const assignments = await ProjectAssignment.find({
+      manager: userId,
+    })
+      .populate("project")
+      .populate("assignedBy", "full_name email");
 
-    res.json(projects);
+    const result = assignments.map((a) => ({
+      ...a.project._doc,
+      assignedBy: a.assignedBy,
+    }));
 
+    res.json(result);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Failed to fetch assigned projects" });
   }
 });

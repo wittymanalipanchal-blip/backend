@@ -6,12 +6,12 @@ const multer = require("multer");
 const mongoose = require("mongoose");
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "uploads/");
-    },
-    filename: (req, file, cb) => {
-        cb(null, Date.now() + "-" + file.originalname);
-    }
+  destination: (req, file, cb) => {
+    cb(null, "uploads/");
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
+  }
 });
 
 const upload = multer({ storage });
@@ -26,11 +26,10 @@ router.post("/add", upload.single("scrumSheet"), async (req, res) => {
       zoomLink,
       meetingTime,
       createdBy: new mongoose.Types.ObjectId(createdBy),
-      
+
       teamManagers: teamManagers
-        ? Array.isArray(teamManagers)
-          ? teamManagers
-          : [teamManagers]
+        ? (Array.isArray(teamManagers) ? teamManagers : [teamManagers])
+          .map(id => new mongoose.Types.ObjectId(id))
         : [],
 
       scrumSheet: req.file ? `/uploads/${req.file.filename}` : ""
@@ -253,7 +252,7 @@ router.get("/", async (req, res) => {
 router.get("/user/:userId", async (req, res) => {
   try {
 
-    const userId = req.params.userId;
+    const userId = new mongoose.Types.ObjectId(req.params.userId);
 
     const meetings = await Meeting.find({
       $or: [
