@@ -107,7 +107,7 @@ io.on("connection", (socket) => {
       emoji: emoji || "",
       time: new Date(),
       chatId,
-      replyTo: replyTo || null 
+      replyTo: replyTo || null
     };
 
     await Chat.findByIdAndUpdate(
@@ -120,7 +120,7 @@ io.on("connection", (socket) => {
       message: newMsg
     });
 
-    
+
   });
 
   socket.on("disconnect", () => {
@@ -129,18 +129,18 @@ io.on("connection", (socket) => {
   socket.on("startPersonalChat", async ({ user1, user2 }) => {
     let chat = await Chat.findOne({
       isGroup: false,
-      members: { $all: [user1, user2] }
+      members: { $all: [user1, user2], $size: 2 }
     });
 
     if (!chat) {
       chat = await Chat.create({
         chatName: null,
-        members: [user1, user2],
+        members: user1 === user2 ? [user1] : [user1, user2],
         isGroup: false
       });
+      await chat.save();
     }
 
-    // ❗ IMPORTANT FIX
     socket.emit("personalChatCreated", chat);
   });
 
@@ -368,6 +368,8 @@ app.get('/api/chat/groups/:username', async (req, res) => {
     res.status(500).json({ message: "Error fetching groups", error });
   }
 });
+
+
 
 
 const PORT = process.env.PORT || 5000;

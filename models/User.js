@@ -32,7 +32,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       enum: ["ACTIVE", "INACTIVE"],
       default: "ACTIVE"
-    }
+    },
+    profilePic: String
   },
   {
     timestamps: true 

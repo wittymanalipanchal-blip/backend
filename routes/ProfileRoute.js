@@ -38,4 +38,31 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// ✅ Upload profile
+router.post("/upload-profile", async (req, res) => {
+  try {
+    const { userName, profilePic } = req.body;
+
+    const user = await User.findOneAndUpdate(
+      { full_name: userName },
+      { profilePic },
+      { new: true }
+    );
+
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// ✅ Get profile
+router.get("/:userName", async (req, res) => {
+  try {
+    const user = await User.findOne({ full_name: req.params.userName });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 module.exports = router;
