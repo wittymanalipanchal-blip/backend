@@ -3,19 +3,19 @@ const router = express.Router();
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 
-router.get("/:id", async (req, res) => {
-  try {
-    const user = await User.findById(req.params.id).select("-password");
+// router.get("/:id", async (req, res) => {
+//   try {
+//     const user = await User.findById(req.params.id).select("-password");
 
-    if (!user) {
-      return res.status(404).json({ message: "User not found" });
-    }
+//     if (!user) {
+//       return res.status(404).json({ message: "User not found" });
+//     }
 
-    res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: "Profile fetch failed" });
-  }
-});
+//     res.json(user);
+//   } catch (err) {
+//     res.status(500).json({ message: "Profile fetch failed" });
+//   }
+// });
 
 
 router.put("/:id", async (req, res) => {
@@ -49,8 +49,14 @@ router.post("/upload-profile", async (req, res) => {
       { new: true }
     );
 
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
     res.json(user);
+
   } catch (err) {
+    console.error("UPLOAD ERROR 👉", err);
     res.status(500).json({ message: err.message });
   }
 });
@@ -59,8 +65,17 @@ router.post("/upload-profile", async (req, res) => {
 router.get("/:userName", async (req, res) => {
   try {
     const user = await User.findOne({ full_name: req.params.userName });
-    res.json(user);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json({
+      profilePic: user.profilePic || null
+    });
+
   } catch (err) {
+    console.error("PROFILE FETCH ERROR 👉", err);
     res.status(500).json({ message: err.message });
   }
 });
