@@ -119,11 +119,21 @@ router.post("/assign", async (req, res) => {
       return res.status(400).json({ message: "Missing fields" });
     }
 
+    const mongoose = require("mongoose");
+    if (
+      !mongoose.Types.ObjectId.isValid(projectId) ||
+      !mongoose.Types.ObjectId.isValid(managerId)
+    ) {
+      return res.status(400).json({ message: "Invalid IDs" });
+    }
+
+    console.log("User:", req.user); // debug
+
     const project = await Project.findByIdAndUpdate(
       projectId,
       {
-        manager_id: managerId,
-        assignedBy: req.user.id 
+        managerId: managerId,
+        assignedBy: req.user?.id || null,
       },
       { new: true }
     );
@@ -132,19 +142,23 @@ router.post("/assign", async (req, res) => {
       return res.status(404).json({ message: "Project not found" });
     }
 
-    await createNotification({
-      userId: managerId,
-      type: "PROJECT_ASSIGNED",
-      referenceId: project._id,
-      message: `You have been assigned to project ${project.name}`
-    });
+    try {
+      await createNotification({
+        userId: managerId,
+        type: "PROJECT_ASSIGNED",
+        referenceId: project._id,
+        message: `You have been assigned to project ${project.name}`,
+      });
+    } catch (err) {
+      console.error("Notification error:", err);
+    }
 
     res.json({
       message: "Project assigned successfully",
       project,
     });
   } catch (err) {
-    console.error(err);
+    console.error("MAIN ERROR:", err);
     res.status(500).json({ message: "Project assign failed" });
   }
 });
