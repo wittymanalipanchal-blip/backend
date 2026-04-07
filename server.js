@@ -126,23 +126,48 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("User disconnected");
   });
-  socket.on("startPersonalChat", async ({ user1, user2 }) => {
-    let chat = await Chat.findOne({
-      isGroup: false,
-      members: { $all: [user1, user2], $size: 2 }
-    });
 
-    if (!chat) {
-      chat = await Chat.create({
-        chatName: null,
-        members: user1 === user2 ? [user1] : [user1, user2],
-        isGroup: false
+  socket.on("startPersonalChat", async ({ user1, user2 }) => {
+  try {
+    let chat;
+
+    // ✅ SELF CHAT CASE
+    if (user1 === user2) {
+      chat = await Chat.findOne({
+        isGroup: false,
+        members: [user1] // exact match
       });
-      await chat.save();
+
+      if (!chat) {
+        chat = await Chat.create({
+          chatName: null,
+          members: [user1],
+          isGroup: false
+        });
+      }
+    } 
+    // ✅ NORMAL CHAT
+    else {
+      chat = await Chat.findOne({
+        isGroup: false,
+        members: { $all: [user1, user2], $size: 2 }
+      });
+
+      if (!chat) {
+        chat = await Chat.create({
+          chatName: null,
+          members: [user1, user2],
+          isGroup: false
+        });
+      }
     }
 
     socket.emit("personalChatCreated", chat);
-  });
+
+  } catch (err) {
+    console.error("PERSONAL CHAT ERROR 👉", err);
+  }
+});
 
 });
 
