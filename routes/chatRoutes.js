@@ -7,8 +7,10 @@ router.post("/create", chatController.createGroup);
 router.post("/send", chatController.sendMessage);
 router.get("/all", chatController.getChat);
 router.get("/groups/:userName", chatController.getGroupChats);
+router.delete('/delete/:chatId', chatController.deleteChat);
 
-// 👇 YE WALA ROUTE ADD KAREIN (Taki specific ID handle ho sake)
+
 router.get("/:chatId", chatController.getChatById);
+
 
 module.exports = router;

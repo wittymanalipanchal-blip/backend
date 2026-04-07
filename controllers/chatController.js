@@ -86,3 +86,19 @@ exports.getGroupChats = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+// ✅ Chat delete karne ka function
+exports.deleteChat = async (req, res) => {
+    try {
+        const { chatId } = req.params;
+        const deletedChat = await Chat.findByIdAndDelete(chatId);
+
+        if (!deletedChat) {
+            return res.status(404).json({ message: "Chat not found" });
+        }
+
+        res.status(200).json({ message: "Chat deleted successfully" });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
