@@ -69,6 +69,7 @@ router.get("/:userName", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    console.log("USER rrrrrrr👉", user)
 
     res.json({
       profilePic: user.profilePic || null
