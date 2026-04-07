@@ -35,7 +35,7 @@ router.get("/", async (req, res) => {
   try {
     const { role } = req.query;
     let filter = {};
-console.log("hii")
+
     if (role) {
       const roleData = await Role.findOne({ name: role });
       if (!roleData) return res.json([]);
@@ -43,10 +43,10 @@ console.log("hii")
     }
 
     const users = await User.find(filter)
-      .select("_id full_name email role_id" ,"profilePic")
+      // .select("_id full_name email role_id" ,"profilePic")
       .populate("role_id", "name");
 
-      console.log("temp", users);
+
     res.json(users);
   } catch (err) {
     res.status(500).json({ message: "Fetch failed" });
