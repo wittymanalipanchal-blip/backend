@@ -243,10 +243,12 @@ router.get("/assign/:userId", async (req, res) => {
       .populate("project")
       .populate("assignedBy", "full_name email");
 
-    const result = assignments.map((a) => ({
-      ...a.project._doc,
-      assignedBy: a.assignedBy,
-    }));
+    const result = assignments
+      .filter(a => a.project) 
+      .map((a) => ({
+        ...a.project.toObject(),
+        assignedBy: a.assignedBy,
+      }));
 
     res.json(result);
   } catch (err) {
