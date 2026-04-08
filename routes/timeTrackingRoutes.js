@@ -69,4 +69,19 @@ router.get("/admin-timesheet", async (req, res) => {
   }
 });
 
+router.get("/active/:userId", async (req, res) => {
+  try {
+    const entry = await TimeTracking.findOne({
+      user: req.params.userId,
+      status: "running",
+    })
+      .populate("project", "name")
+      .populate("task", "work_type");
+
+    res.json(entry);
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch active session" });
+  }
+});
+
 module.exports = router;
