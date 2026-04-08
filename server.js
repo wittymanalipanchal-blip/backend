@@ -168,6 +168,23 @@ io.on("connection", (socket) => {
     console.error("PERSONAL CHAT ERROR 👉", err);
   }
 });
+// socket.on("deletePersonalChat", async ({ chatId }) => {
+//     try {
+//         await Chat.findByIdAndDelete(chatId);
+
+//         io.emit("personalChatDeleted", chatId);
+//     } catch (err) {
+//         console.log(err);
+//     }
+// });
+
+socket.on("deletePersonalChat", async ({ chatId, user }) => {
+    console.log("DELETE REQUEST 👉", chatId, user);
+
+    await Chat.findByIdAndDelete(chatId);
+
+    io.emit("personalChatDeleted", chatId); // 👈 MUST
+});
 
 });
 
