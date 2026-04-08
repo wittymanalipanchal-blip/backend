@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const Project = require("../models/Project");
+const ProjectAssignment = require("../models/ProjectAssignment");
 const createNotification = require("../utils/createNotification");
 const router = express.Router();
 
@@ -119,47 +120,29 @@ router.post("/assign", async (req, res) => {
       return res.status(400).json({ message: "Missing fields" });
     }
 
-    const mongoose = require("mongoose");
-    if (
-      !mongoose.Types.ObjectId.isValid(projectId) ||
-      !mongoose.Types.ObjectId.isValid(managerId)
-    ) {
-      return res.status(400).json({ message: "Invalid IDs" });
-    }
-
-    console.log("User:", req.user); // debug
-
     const project = await Project.findByIdAndUpdate(
       projectId,
       {
-        managerId: managerId,
-        assignedBy: req.user?.id || null,
+        manager_id: managerId, // ✅ FIXED FIELD NAME
       },
       { new: true }
     );
 
-    if (!project) {
-      return res.status(404).json({ message: "Project not found" });
-    }
-
-    try {
-      await createNotification({
-        userId: managerId,
-        type: "PROJECT_ASSIGNED",
-        referenceId: project._id,
-        message: `You have been assigned to project ${project.name}`,
-      });
-    } catch (err) {
-      console.error("Notification error:", err);
-    }
+    // ✅ IMPORTANT
+    await ProjectAssignment.create({
+      project: projectId,
+      manager: managerId,
+      assignedBy: req.user?.id || null
+    });
 
     res.json({
       message: "Project assigned successfully",
       project,
     });
+
   } catch (err) {
-    console.error("MAIN ERROR:", err);
-    res.status(500).json({ message: "Project assign failed" });
+    console.error("ASSIGN ERROR 👉", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -237,22 +220,30 @@ router.get("/assign/:userId", async (req, res) => {
   try {
     const { userId } = req.params;
 
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: "Invalid userId" });
+    }
+
     const assignments = await ProjectAssignment.find({
       manager: userId,
     })
       .populate("project")
       .populate("assignedBy", "full_name email");
 
+    console.log("ASSIGNMENTS 👉", assignments);
+
     const result = assignments
-      .filter(a => a.project) 
+      .filter(a => a.project)
       .map((a) => ({
         ...a.project.toObject(),
         assignedBy: a.assignedBy,
       }));
 
     res.json(result);
+
   } catch (err) {
-    res.status(500).json({ message: "Failed to fetch assigned projects" });
+    console.error("ASSIGN FETCH ERROR 👉", err);
+    res.status(500).json({ message: err.message });
   }
 });
 
