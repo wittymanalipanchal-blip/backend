@@ -54,5 +54,19 @@ router.get("/timesheet/:userId", async (req, res) => {
     res.status(500).json({ message: "Failed to fetch timesheet" });
   }
 });
+router.get("/admin-timesheet", async (req, res) => {
+  try {
+    const entries = await TimeTracking.find()
+      .populate("user", "full_name email")
+      .populate("project", "name")
+      .populate("task", "work_type")
+      .sort({ startTime: -1 });
+
+    res.json(entries);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch admin timesheet" });
+  }
+});
 
 module.exports = router;
