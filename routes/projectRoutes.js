@@ -112,6 +112,41 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+// router.post("/assign", async (req, res) => {
+//   try {
+//     const { projectId, managerId } = req.body;
+
+//     if (!projectId || !managerId) {
+//       return res.status(400).json({ message: "Missing fields" });
+//     }
+
+//     const project = await Project.findByIdAndUpdate(
+//       projectId,
+//       {
+//         manager_id: managerId, // ✅ FIXED FIELD NAME
+//       },
+//       { new: true }
+//     );
+
+//     // ✅ IMPORTANT
+//     await ProjectAssignment.create({
+//       project: projectId,
+//       manager: managerId,
+//       assignedBy: req.user?.id || null
+//     });
+
+//     res.json({
+//       message: "Project assigned successfully",
+//       project,
+//     });
+
+//   } catch (err) {
+//     console.error("ASSIGN ERROR 👉", err);
+//     res.status(500).json({ message: err.message });
+//   }
+// });
+
+
 router.post("/assign", async (req, res) => {
   try {
     const { projectId, managerId } = req.body;
@@ -120,24 +155,34 @@ router.post("/assign", async (req, res) => {
       return res.status(400).json({ message: "Missing fields" });
     }
 
-    const project = await Project.findByIdAndUpdate(
-      projectId,
-      {
-        manager_id: managerId, // ✅ FIXED FIELD NAME
-      },
-      { new: true }
-    );
+    // ❗ check duplicate (optional but recommended)
+    const existing = await ProjectAssignment.findOne({
+      project: projectId,
+      manager: managerId
+    });
 
-    // ✅ IMPORTANT
-    await ProjectAssignment.create({
+    if (existing) {
+      return res.status(400).json({ message: "Already assigned" });
+    }
+
+    // ✅ create new assignment (MULTIPLE allowed)
+    const assignment = await ProjectAssignment.create({
       project: projectId,
       manager: managerId,
       assignedBy: req.user?.id || null
     });
 
+    // notification
+    await createNotification({
+      userId: managerId,
+      type: "PROJECT_ASSIGNED",
+      referenceId: projectId,
+      message: `You have been assigned to a project`
+    });
+
     res.json({
       message: "Project assigned successfully",
-      project,
+      assignment
     });
 
   } catch (err) {
@@ -145,6 +190,7 @@ router.post("/assign", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
 
 router.get("/assigned-by-role/:userId/:role", async (req, res) => {
   try {
@@ -342,17 +388,33 @@ router.get("/assigned-project-manager/:id", async (req, res) => {
 });
 
 router.get("/assigned-projects", async (req, res) => {
-  try {
-    const projects = await Project.find({
-      manager_id: { $ne: null }
-    })
-      .populate("manager_id", "full_name email")
-      .select("name client budget progress status manager_id");
+  const assignments = await ProjectAssignment.find()
+    .populate("project")
+    .populate("manager", "full_name email");
 
-    res.json(projects);
+  const result = assignments.map(a => ({
+    assignmentId: a._id,
+    projectId: a.project._id,
+    name: a.project.name,
+    client: a.project.client,
+    budget: a.project.budget,
+    progress: a.project.progress,
+    status: a.project.status,
+    manager: a.manager   // ✅ CHANGE
+  }));
+
+  res.json(result);
+});
+
+router.delete("/assignment/:id", async (req, res) => {
+  try {
+    const assignment = await ProjectAssignment.findByIdAndDelete(req.params.id);
+    if (!assignment) return res.status(404).json({ message: "Assignment not found" });
+
+    res.json({ message: "Assignment deleted" });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: "Failed to fetch assigned projects" });
+    res.status(500).json({ message: "Delete failed" });
   }
 });
 
