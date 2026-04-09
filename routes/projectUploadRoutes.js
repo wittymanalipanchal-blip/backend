@@ -5,38 +5,71 @@ const createNotification = require("../utils/createNotification");
 const User = require("../models/User");
 const path = require("path");
 const mongoose = require("mongoose");
+const multer = require("multer");
 
-router.post("/upload", async (req, res) => {
+const storage = multer.memoryStorage(); // ya diskStorage
+const upload = multer({
+  storage,
+  limits: { fileSize: 10000 * 1024 * 1024 } // ✅ 50MB
+});
+
+router.post("/upload", upload.array("files"), async (req, res) => {
   try {
-    const { project, assignedTo, uploadedBy, description, files } = req.body;
+    const { project, assignedTo, uploadedBy, description } = req.body;
 
-    if (!project || !assignedTo || !uploadedBy) {
-      return res.status(400).json({ message: "Missing required fields" });
-    }
+    const files = req.files.map(f => ({
+      fileName: f.originalname,
+      fileBuffer: f.buffer // ya path if diskStorage
+    }));
 
-    const filesArray = files || [];
-
-    const upload = await ProjectUpload.create({
+    const uploadDoc = await ProjectUpload.create({
       project,
       assignedTo,
       uploadedBy,
       description,
-      files: filesArray,
-      status: "Pending",
-    });
-      await createNotification({
-      userId: assignedTo,
-      type: "WORK_UPLOADED",
-      referenceId: upload._id,
-      message: `New work uploaded for project`
+      files,
+      status: "Pending"
     });
 
-    res.json({ message: "Upload success", upload });
+    res.json({ message: "Upload success", upload: uploadDoc });
+
   } catch (err) {
-    console.error("UPLOAD ERROR 👉", err);
-    res.status(500).json({ message: "Upload failed", error: err.message });
+    console.error(err);
+    res.status(500).json({ message: "Upload failed" });
   }
 });
+
+// router.post("/upload", async (req, res) => {
+//   try {
+//     const { project, assignedTo, uploadedBy, description, files } = req.body;
+
+//     if (!project || !assignedTo || !uploadedBy) {
+//       return res.status(400).json({ message: "Missing required fields" });
+//     }
+
+//     const filesArray = files || [];
+
+//     const upload = await ProjectUpload.create({
+//       project,
+//       assignedTo,
+//       uploadedBy,
+//       description,
+//       files: filesArray,
+//       status: "Pending",
+//     });
+//       await createNotification({
+//       userId: assignedTo,
+//       type: "WORK_UPLOADED",
+//       referenceId: upload._id,
+//       message: `New work uploaded for project`
+//     });
+
+//     res.json({ message: "Upload success", upload });
+//   } catch (err) {
+//     console.error("UPLOAD ERROR 👉", err);
+//     res.status(500).json({ message: "Upload failed", error: err.message });
+//   }
+// });
 
 router.get("/my-uploads/:id", async (req, res) => {
   try {
