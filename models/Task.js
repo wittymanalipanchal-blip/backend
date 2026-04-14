@@ -45,6 +45,9 @@ const taskSchema = new mongoose.Schema(
       type: String,
       default: "Assigned"
     },
+    due_date: {
+      type: Date
+    },
     uploads: [uploadSchema],
     chats: [
       {

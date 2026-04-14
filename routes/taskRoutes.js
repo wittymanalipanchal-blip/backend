@@ -86,7 +86,7 @@ router.post("/assign-task", async (req, res) => {
   try {
     console.log("BODY:", req.body);
 
-    const { project_id, employee_id, work_type, assigned_by, status } = req.body;
+    const { project_id, employee_id, work_type, assigned_by, status, description, priority, due_date } = req.body;
 
     if (!project_id || !employee_id || !work_type || !assigned_by) {
       return res.status(400).json({ message: "Missing fields" });
@@ -98,6 +98,9 @@ router.post("/assign-task", async (req, res) => {
       assigned_by,
       work_type,
       status: status || "Assigned",
+      description,
+      priority,
+      due_date
     });
 
     res.status(201).json(task);
