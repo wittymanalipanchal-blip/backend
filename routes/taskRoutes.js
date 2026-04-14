@@ -62,7 +62,7 @@ router.post("/assign-task", upload.single("file"), async (req, res) => {
       work_type,
       priority: priority || "Medium", 
       description: description || "",
-      status: "Assigned",
+      status: req.body.status || "Assigned",
       uploads: uploadedFiles,
     });
     const project = await Project.findById(project_id);
@@ -283,9 +283,9 @@ router.put("/:id", async (req, res) => {
       "Cancelled"
     ];
 
-    if (!allowedStatus.includes(status)) {
-      return res.status(400).json({ message: "Invalid status" });
-    }
+    // if (!allowedStatus.includes(status)) {
+    //   return res.status(400).json({ message: "Invalid status" });
+    // }
 
     const task = await Task.findByIdAndUpdate(
       req.params.id,
