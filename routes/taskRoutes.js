@@ -82,35 +82,44 @@ router.get("/", async (req, res) => {
 //   }
 // });
 
-router.post("/assign-task", async (req, res) => {
+router.post("/assign-task", upload.single("file"), async (req, res) => {
   try {
     console.log("BODY:", req.body);
+    console.log("FILE:", req.file);
 
-    const { project_id, employee_id, work_type, assigned_by, status, description, priority, due_date } = req.body;
+    const {
+      project_id,
+      employee_id,
+      work_type,
+      assigned_by,
+      status,
+      description,
+      priority,
+      due_date
+    } = req.body;
 
-    if (!project_id || !employee_id || !work_type || !assigned_by) {
-      return res.status(400).json({ message: "Missing fields" });
+    if (!project_id || !employee_id || !assigned_by) {
+      return res.status(400).json({ message: "Missing required fields" });
     }
 
     const task = await Task.create({
-      project_id,
-      employee_id,
-      assigned_by,
+      project_id: new mongoose.Types.ObjectId(project_id),
+      employee_id: new mongoose.Types.ObjectId(employee_id),
+      assigned_by: new mongoose.Types.ObjectId(assigned_by),
       work_type,
       status: status || "Assigned",
       description,
       priority,
-      due_date
+      due_date: due_date ? new Date(due_date) : null
     });
 
     res.status(201).json(task);
 
   } catch (err) {
-    console.error("ASSIGN TASK ERROR:", err.message);
+    console.error("ERROR:", err);
     res.status(500).json({ message: err.message });
   }
 });
-
 router.post(
   "/assign-task-to-admin",
   upload.array("files", 5),
