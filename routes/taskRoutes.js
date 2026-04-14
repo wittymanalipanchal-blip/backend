@@ -37,48 +37,74 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/assign-task", upload.single("file"), async (req, res) => {
+// router.post("/assign-task", upload.single("file"), async (req, res) => {
+//   try {
+//     const { project_id, employee_id, work_type, assigned_by, description, priority } = req.body;
+
+//     if (!project_id || !employee_id || !work_type || !assigned_by) {
+//       return res.status(400).json({ message: "Missing fields" });
+//     }
+
+//     let uploadedFiles = [];
+
+//     if (req.file) {
+//       uploadedFiles.push({
+//         fileUrl: `/uploads/${req.file.filename}`,
+//         remarks: "",
+//         employee: new mongoose.Types.ObjectId(employee_id),
+//       });
+//     }
+
+//     const task = await Task.create({
+//       project_id: new mongoose.Types.ObjectId(project_id),
+//       employee_id: new mongoose.Types.ObjectId(employee_id),
+//       assigned_by: new mongoose.Types.ObjectId(assigned_by),
+//       work_type,
+//       priority: priority || "Medium",
+//       description: description || "",
+//       status: req.body.status || "Assigned",
+//       uploads: uploadedFiles,
+//     });
+//     const project = await Project.findById(project_id);
+
+//     await createNotification({
+//       userId: employee_id,
+//       type: "TASK_ADDED",
+//       referenceId: task._id,
+//       message: `New task assigned in project ${project?.name || "Unknown"}`
+//     });
+
+//     res.status(201).json(task);
+
+//   } catch (err) {
+//     console.error("ASSIGN TASK ERROR:", err);
+//     res.status(500).json({ message: "Task assign failed" });
+//   }
+// });
+
+router.post("/assign-task", async (req, res) => {
   try {
-    const { project_id, employee_id, work_type, assigned_by, description, priority } = req.body;
+    console.log("BODY:", req.body);
+
+    const { project_id, employee_id, work_type, assigned_by, status } = req.body;
 
     if (!project_id || !employee_id || !work_type || !assigned_by) {
       return res.status(400).json({ message: "Missing fields" });
     }
 
-    let uploadedFiles = [];
-
-    if (req.file) {
-      uploadedFiles.push({
-        fileUrl: `/uploads/${req.file.filename}`,
-        remarks: "",
-        employee: new mongoose.Types.ObjectId(employee_id),
-      });
-    }
-
     const task = await Task.create({
-      project_id: new mongoose.Types.ObjectId(project_id),
-      employee_id: new mongoose.Types.ObjectId(employee_id),
-      assigned_by: new mongoose.Types.ObjectId(assigned_by),
+      project_id,
+      employee_id,
+      assigned_by,
       work_type,
-      priority: priority || "Medium", 
-      description: description || "",
-      status: req.body.status || "Assigned",
-      uploads: uploadedFiles,
-    });
-    const project = await Project.findById(project_id);
-
-    await createNotification({
-      userId: employee_id,
-      type: "TASK_ADDED",
-      referenceId: task._id,
-      message: `New task assigned in project ${project.name}`
+      status: status || "Assigned",
     });
 
     res.status(201).json(task);
 
   } catch (err) {
-    console.error("ASSIGN TASK ERROR:", err);
-    res.status(500).json({ message: "Task assign failed" });
+    console.error("ASSIGN TASK ERROR:", err.message);
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -398,8 +424,5 @@ router.get("/by-manager/:id", async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-
-
 
 module.exports = router;
