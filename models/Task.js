@@ -43,8 +43,7 @@ const taskSchema = new mongoose.Schema(
     description: String,
     status: {
       type: String,
-      enum: ["Assigned", "Completed"],
-      default: "Assigned",
+      default: "Assigned"
     },
     uploads: [uploadSchema],
     chats: [
