@@ -94,9 +94,11 @@ router.post("/assign-task", upload.single("file"), async (req, res) => {
       assigned_by,
       status,
       description,
-      priority,
-      due_date
+      priority, 
+      due_date,
     } = req.body;
+
+    const project = await Project.findById(project_id);
 
     if (!project_id || !employee_id || !assigned_by) {
       return res.status(400).json({ message: "Missing required fields" });
@@ -110,7 +112,9 @@ router.post("/assign-task", upload.single("file"), async (req, res) => {
       status: status || "Assigned",
       description,
       priority,
-      due_date: due_date ? new Date(due_date) : null
+      due_date: due_date ? new Date(due_date) : null,
+      assigned_to_pm: project?.project_manager_id,
+      assigned_to_tm: project?.team_manager_id,
     });
 
     res.status(201).json(task);
@@ -280,7 +284,21 @@ router.post("/upload/:taskId", upload.single("file"), async (req, res) => {
   }
 });
 
+router.get("/pm-tasks/:id", async (req, res) => {
+  const tasks = await Task.find({ assigned_to_pm: req.params.id })
+    .populate("project_id", "name")
+    .populate("assigned_by", "full_name");
 
+  res.json(tasks);
+});
+
+router.get("/tm-tasks/:id", async (req, res) => {
+  const tasks = await Task.find({ assigned_to_tm: req.params.id })
+    .populate("project_id", "name")
+    .populate("assigned_by", "full_name");
+
+  res.json(tasks);
+});
 
 router.get("/assigned-by/:managerId", async (req, res) => {
   try {
@@ -415,26 +433,5 @@ router.get("/:id", async (req, res) => {
 });
 
 
-router.get("/by-manager/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const projects = await Project.find({ team_manager_id: id });
-
-    if (!projects.length) return res.json([]);
-
-    const projectIds = projects.map(p => p._id);
-
-    const tasks = await Task.find({
-      project_id: { $in: projectIds }
-    });
-
-    res.json(tasks);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
 
 module.exports = router;

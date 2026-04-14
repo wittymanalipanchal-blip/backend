@@ -48,6 +48,14 @@ const taskSchema = new mongoose.Schema(
     due_date: {
       type: Date
     },
+    assigned_to_pm: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
+    assigned_to_tm: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User"
+    },
     uploads: [uploadSchema],
     chats: [
       {
