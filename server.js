@@ -26,6 +26,7 @@ const eventRoutes = require("./routes/eventRoute");
 const reportRoutes = require("./routes/reportRoutes");
 const meetingRoutes = require("./routes/meetingRoute");
 const chatRoutes = require("./routes/chatRoutes");
+const workspaceRoutes = require("./routes/workspaceRoutes");
 const bcrypt = require("bcryptjs");
 app.use(cors());
 app.use(express.json({ limit: "10000mb" }));
@@ -362,6 +363,7 @@ app.use("/api/events", eventRoutes);
 app.use("/api/reports", reportRoutes);
 app.use("/api/meetings", meetingRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/workspace", workspaceRoutes);
 
 // app.get("/api/chat/groups", async (req, res) => {
 //   try {
