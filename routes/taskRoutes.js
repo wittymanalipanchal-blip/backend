@@ -432,6 +432,11 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.delete("/:id", async (req, res) => {
+  await Task.findByIdAndDelete(req.params.id);
+  res.json({ message: "Deleted" });
+});
+
 
 
 module.exports = router;

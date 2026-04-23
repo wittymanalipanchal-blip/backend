@@ -57,6 +57,14 @@ const taskSchema = new mongoose.Schema(
       ref: "User"
     },
     uploads: [uploadSchema],
+    labels: [String],
+    subtasks: [
+      {
+        title: String,
+        completed: Boolean
+      }
+    ],
+    time_spent: Number,
     chats: [
       {
         message: String,

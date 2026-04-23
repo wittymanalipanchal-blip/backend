@@ -112,6 +112,15 @@ router.put("/:id", async (req, res) => {
   }
 });
 
+router.get("/project/:id", async (req, res) => {
+  try {
+    const tasks = await Task.find({ projectId: req.params.id });
+    res.json(tasks);
+  } catch (err) {
+    res.status(500).json({ message: "Error" });
+  }
+});
+
 router.post("/assign", async (req, res) => {
   try {
     const { projectId, managerId } = req.body;
