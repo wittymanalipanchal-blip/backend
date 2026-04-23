@@ -327,38 +327,79 @@ router.get("/recent", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
-
 router.put("/:id", async (req, res) => {
   try {
-    const { status } = req.body;
+    // Hum body se saare fields nikaal lenge jo update ho sakte hain
+    const { status, work_type, description, priority, due_date } = req.body;
 
-    const allowedStatus = [
-      "Assigned",
-      "In Progress",
-      "Completed",
-      "Cancelled"
-    ];
-
-    // if (!allowedStatus.includes(status)) {
-    //   return res.status(400).json({ message: "Invalid status" });
-    // }
-
-    const task = await Task.findByIdAndUpdate(
+    const updatedTask = await Task.findByIdAndUpdate(
       req.params.id,
-      { status },
-      { new: true }
+      { 
+        $set: { 
+          status, 
+          work_type, 
+          description, 
+          priority, 
+          due_date 
+        } 
+      },
+      { new: true } // updated document wapas milega
     );
 
-    if (!task) {
-      return res.status(404).json({ message: "Task not found" });
-    }
-
-    res.json(task);
+    if (!updatedTask) return res.status(404).json({ message: "Task not found" });
+    res.json(updatedTask);
   } catch (err) {
-    console.error("STATUS UPDATE ERROR:", err);
-    res.status(500).json({ message: "Status update failed" });
+    console.error("UPDATE ERROR:", err);
+    res.status(500).json({ message: "Update failed" });
   }
 });
+
+router.put("/:id/labels", async (req, res) => {
+  const { labels } = req.body;
+  const task = await Task.findByIdAndUpdate(req.params.id, { labels }, { new: true });
+  res.json(task);
+});
+
+router.put("/:id/time", async (req, res) => {
+  const { time_spent } = req.body;
+  const task = await Task.findByIdAndUpdate(req.params.id, { time_spent }, { new: true });
+  res.json(task);
+});
+
+router.delete("/:id/upload/:fileIndex", async (req, res) => {
+  const task = await Task.findById(req.params.id);
+  task.uploads.splice(req.params.fileIndex, 1);
+  await task.save();
+  res.json(task);
+});
+
+// router.put("/:id", async (req, res) => {
+//   try {
+//     const { status } = req.body;
+
+//     const allowedStatus = [
+//       "Assigned",
+//       "In Progress",
+//       "Completed",
+//       "Cancelled"
+//     ];
+
+//     const task = await Task.findByIdAndUpdate(
+//       req.params.id,
+//       { status },
+//       { new: true }
+//     );
+
+//     if (!task) {
+//       return res.status(404).json({ message: "Task not found" });
+//     }
+
+//     res.json(task);
+//   } catch (err) {
+//     console.error("STATUS UPDATE ERROR:", err);
+//     res.status(500).json({ message: "Status update failed" });
+//   }
+// });
 
 router.post("/:taskId/chat", async (req, res) => {
   try {
